@@ -12,10 +12,10 @@ class Task(models.Model):
     task_status = models.CharField(max_length=20)
 
     pending_at = models.DateTimeField(auto_now_add=True)
-    running_at = models.DateTimeField()
-    finished_at = models.DateTimeField()
+    running_at = models.DateTimeField(null=True)
+    finished_at = models.DateTimeField(null=True)
 
-    finished_ok = models.BooleanField()
-    finished_details = models.TextField()
+    finished_ok = models.BooleanField(null=True)
+    finished_details = models.TextField(blank=True)
 
 
