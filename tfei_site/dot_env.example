@@ -1,1 +1,3 @@
 SECRET_KEY='my_secret_key'
+DEBUG='False'
+ALLOWED_HOSTS='my_host_1,my_host_2'
