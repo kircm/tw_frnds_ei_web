@@ -1,6 +1,7 @@
-{% extends "main-content.html" %}
-
-{% block page_content %}
-    <p>This is my Main page content</p>
-    <p>Some explanation here</p>
-{% endblock page_content %}
+{% extends "base.html" %}
+{% block containercontent %}
+<p class="hero-unit">
+	So, let's login into Twitter and authorize the Twitter app called <b>FriendsEI_app</b>:
+</p>
+<a href="/tw_auth" class="btn btn-small btn-success button_ok">Log into Twitter &amp; authorize app</a>
+{% endblock containercontent %}
