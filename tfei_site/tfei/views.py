@@ -52,11 +52,11 @@ def tw_auth_callback(request):
     if request.method == 'POST':
         oauth_token = request.POST['oauth_token']
         oauth_verifier = request.POST['oauth_verifier']
-        oauth_denied = request.POST['denied']
+        oauth_denied = request.POST.get('denied', False)
     elif request.method == 'GET':
         oauth_token = request.GET['oauth_token']
         oauth_verifier = request.GET['oauth_verifier']
-        oauth_denied = request.GET['denied']
+        oauth_denied = request.GET.get('denied', False)
     else:
         return HttpResponse('Invalid method!')
 
