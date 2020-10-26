@@ -22,11 +22,23 @@ def main_v(request):
 
 
 class TwAuthenticateRedirectView(RedirectView):
-    def get_redirect_url(self, *args, **kwargs):
-        callback_url = reverse('tw_auth_callback')
 
+    callback_url = ""  # To be set from a request object
+
+    def get(self, request, *args, **kwargs):
+        self.callback_url = request.build_absolute_uri(reverse('tw_auth_callback'))
+
+        print("---------")
+        print("---------")
+        print(f"callback_url: {self.callback_url}")
+        print("---------")
+        print("---------")
+
+        super().get(self, request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
         twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
-        auth = twitter.get_authentication_tokens(callback_url=callback_url, force_login=True)
+        auth = twitter.get_authentication_tokens(callback_url=self.callback_url, force_login=True)
 
         oauth_token = auth['oauth_token']
         oauth_token_secret = auth['oauth_token_secret']
