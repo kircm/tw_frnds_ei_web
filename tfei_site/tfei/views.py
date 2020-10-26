@@ -53,8 +53,12 @@ def tw_auth_callback(request):
         oauth_token = request.POST['oauth_token']
         oauth_verifier = request.POST['oauth_verifier']
         oauth_denied = request.POST['denied']
+    elif request.method == 'GET':
+        oauth_token = request.GET['oauth_token']
+        oauth_verifier = request.GET['oauth_verifier']
+        oauth_denied = request.GET['denied']
     else:
-        return HttpResponse('Not a POST!')
+        return HttpResponse('Invalid method!')
 
     if oauth_denied:
         context = {'error_message': "the OAuth request was denied by this user"}
