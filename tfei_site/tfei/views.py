@@ -34,7 +34,7 @@ class TwAuthenticateRedirectView(RedirectView):
         print("---------")
         print("---------")
 
-        super().get(self, request, *args, **kwargs)
+        return super().get(self, request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
