@@ -27,13 +27,6 @@ class TwAuthenticateRedirectView(RedirectView):
 
     def get(self, request, *args, **kwargs):
         self.callback_url = request.build_absolute_uri(reverse('tw_auth_callback'))
-
-        print("---------")
-        print("---------")
-        print(f"callback_url: {self.callback_url}")
-        print("---------")
-        print("---------")
-
         return super().get(self, request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
