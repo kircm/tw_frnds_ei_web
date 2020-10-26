@@ -29,6 +29,15 @@
   width: 40%;
 }
 
+.img_brd_cent {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  padding: 12px 15px;
+  border: solid;
+}
+
 .nav {
   position: relative;
   display: inline-block;
