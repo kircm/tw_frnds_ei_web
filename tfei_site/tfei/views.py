@@ -89,9 +89,10 @@ class TwAuthCallbackView(TemplateView):
         oauth_final_token = final_oauth_tokens['oauth_token']
         oauth_final_token_secret = final_oauth_tokens['oauth_token_secret']
 
-        creds = twitter.verify_credentials(skip_status=True,
-                                           include_entities=False,
-                                           include_email=False)
+        authenticated_twitter = Twython(APP_KEY, APP_SECRET, oauth_final_token, oauth_final_token_secret)
+        creds = authenticated_twitter.verify_credentials(skip_status=True,
+                                                         include_entities=False,
+                                                         include_email=False)
 
         context = {
             'oauth_final_token': oauth_final_token,
