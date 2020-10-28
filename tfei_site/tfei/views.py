@@ -17,6 +17,10 @@ class MainView(TemplateView):
     template_name = "tfei/main.html"
 
 
+class MainMenuView(TemplateView):
+    template_name = "tfei/main-menu.html"
+
+
 class ExportView(TemplateView):
     template_name = "tfei/export.html"
 
@@ -27,6 +31,10 @@ class ImportView(TemplateView):
 
 class LogoutView(TemplateView):
     template_name = "tfei/logout.html"
+
+
+class ErrorView(TemplateView):
+    template_name = "tfei/auth-nk.html"
 
 
 class TwAuthenticateRedirectView(RedirectView):
@@ -74,12 +82,12 @@ class TwAuthCallbackView(RedirectView):
     def process_oauth_callback(self, oauth_token, oauth_verifier, oauth_denied):
         if oauth_denied:
             self.context = {'error_message': "the OAuth request was denied by this user"}
-            self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_nk.html"))
+            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
         if oauth_token not in oauth_store:
             self.context = {'error_message': "oauth_token not found locally"}
-            self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_nk.html"))
+            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
         oauth_token_secret = oauth_store[oauth_token]
@@ -100,7 +108,7 @@ class TwAuthCallbackView(RedirectView):
             'user_screen_name': creds['screen_name']
         }
 
-        self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_ok.html"))
+        self.redirect_url = self.absolute_url_builder(reverse("main_menu"))
         return
 
     def get_redirect_url(self, *args, **kwargs):
