@@ -5,6 +5,7 @@ from twython import Twython
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
 
+# OAUTH_store should be in session
 oauth_store = {}
 
 
@@ -48,39 +49,38 @@ class TwAuthenticateRedirectView(RedirectView):
         return auth_url
 
 
-class TwAuthCallbackView(TemplateView):
+class TwAuthCallbackView(RedirectView):
 
-    template_name = ""
+    absolute_url_builder = None
     context = {}
+    redirect_url = None
 
     def get(self, request, *args, **kwargs):
         oauth_token = request.GET['oauth_token']
         oauth_verifier = request.GET['oauth_verifier']
         oauth_denied = request.GET.get('denied', False)
-        self.template_name, self.context = self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
+        self.absolute_url_builder = request.build_absolute_uri
+        self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         oauth_token = request.POST['oauth_token']
         oauth_verifier = request.POST['oauth_verifier']
         oauth_denied = request.POST.get('denied', False)
-        self.template_name, self.context = self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
+        self.absolute_url_builder = request.build_absolute_uri
+        self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
         return super().post(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        return self.context
-
-    @staticmethod
-    def process_oauth_callback(oauth_token, oauth_verifier, oauth_denied):
+    def process_oauth_callback(self, oauth_token, oauth_verifier, oauth_denied):
         if oauth_denied:
-            template_name = "tfei/auth_nk.html"
-            context = {'error_message': "the OAuth request was denied by this user"}
-            return template_name, context
+            self.context = {'error_message': "the OAuth request was denied by this user"}
+            self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_nk.html"))
+            return
 
         if oauth_token not in oauth_store:
-            template_name = "tfei/auth_nk.html"
-            context = {'error_message': "oauth_token not found locally"}
-            return template_name, context
+            self.context = {'error_message': "oauth_token not found locally"}
+            self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_nk.html"))
+            return
 
         oauth_token_secret = oauth_store[oauth_token]
 
@@ -94,10 +94,14 @@ class TwAuthCallbackView(TemplateView):
                                                          include_entities=False,
                                                          include_email=False)
 
-        context = {
+        self.context = {
             'oauth_final_token': oauth_final_token,
             'oauth_final_token_secret': oauth_final_token_secret,
             'user_screen_name': creds['screen_name']
         }
 
-        return "tfei/auth_ok.html", context
+        self.redirect_url = self.absolute_url_builder(reverse("tfei/auth_ok.html"))
+        return
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.redirect_url
