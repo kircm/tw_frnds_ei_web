@@ -1,5 +1,4 @@
-from django.urls import path, re_path
-from django.views.generic.base import RedirectView
+from django.urls import path
 
 from .views import ErrorView
 from .views import ExportView
@@ -11,10 +10,7 @@ from .views import MainView
 from .views import TwAuthCallbackView
 from .views import TwAuthenticateRedirectView
 
-favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
-
 urlpatterns = [
-    re_path(r'^favicon\.ico$', favicon_view),
     path('', IndexView.as_view(), name='index'),
     path('main', MainView.as_view(), name='main'),
     path('export', ExportView.as_view(), name='export'),
