@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block containercontent %}
+<p class="hero-unit">
+	{% include "navigation.html" %}
+</p>
+<p class="hero-unit">
+	{{ tw_context }}
+</p>
+{% endblock containercontent %}

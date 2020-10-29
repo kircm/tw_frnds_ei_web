@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block containercontent %}
+<p class="hero-unit">
+	This web-app may be used as an utility for your Twitter account to:
+	<ol>
+		<li>
+			Export all the accounts you follow into a CSV (comma-delimited) file for you to keep as
+			a back-up for later use.</li>
+		<li>
+			Import all the accounts present in a CSV file as "friends" into Twitter, that is, follow all those accounts.
+		</li>
+	</ol>
+</p>
+
+<p class="hero-unit">
+	For the app to be able to do that it will need to:
+	<ul>
+		<li>Authenticate you into Twitter.</li>
+		<li>Have you authorize this app to perform actions on your behalf.</li>
+	</ul>
+</p>
+
+<p class="hero-unit">
+	The app uses <a href="https://developer.twitter.com/en/docs/twitter-api">Twitter's API</a>.
+	The only operations this app does are:
+	<ul>
+		<li>Query friends account names and ID's:
+			<a href="https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list">
+				<code>friends/list</code>.
+			</a>
+		</li>
+		<li>Perform
+			<a href="https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/post-friendships-create">
+				<code>friendships/create</code>
+			</a> requests.
+		</li>
+	</ul>
+</p>
+
+<p class="hero-unit">
+	This app uses the <a href="https://github.com/kircm/tw_frnds_ei">tw_frnds_ei</a> program to interact with Twitter.
+	The program takes care of several things like:
+	<ul>
+		<li>Loop through cursors (chunks of data) when twitter API breaks the data in chunks.</li>
+		<li>Make sure it doesn't exceed Twitter API's <a href="https://developer.twitter.com/en/docs/twitter-api/v1/rate-limits">
+			rate limits</a>.</li>
+	</ul>
+</p>
+
+<a href="/main" class="btn btn-small btn-success button_ok">Show me more</a>
+{% endblock containercontent %}

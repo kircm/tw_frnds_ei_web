@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block containercontent %}
+<p class="hero-unit">
+	Let's login into Twitter and authorize the Twitter app called <b>FriendsEI_app</b>.
+
+	After logging in and authorizing, Twitter will show this connected app in
+	<a href="https://twitter.com/settings/connected_apps">your connected Apps and sessions</a> section
+	within the <a href="https://twitter.com/settings/security_and_account_access">Security and account access</a>
+	settings:
+</p>
+<p class="hero-unit">
+	<img class="img_brd_cent" src="/static/tfei/tw_connected_apps_tfei.png">
+</p>
+<p class="mt-5">
+	<a href="/tw_auth" class="btn btn-small btn-success button_ok">Log into Twitter &amp; authorize app</a>
+</p>
+{% endblock containercontent %}
