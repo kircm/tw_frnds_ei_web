@@ -86,6 +86,8 @@ class TwAuthCallbackView(RedirectView):
         return super().post(request, *args, **kwargs)
 
     def process_request(self, request, req_method):
+        self.absolute_url_builder = request.build_absolute_uri
+        
         oauth_denied = req_method.get('denied', False)
         if oauth_denied:
             msg = "The OAuth request was denied by this user"
@@ -98,7 +100,6 @@ class TwAuthCallbackView(RedirectView):
             msg = "Problem interacting with Twitter's OAuth's system"
             return self.redirect_to_error_view(msg)
 
-        self.absolute_url_builder = request.build_absolute_uri
         return self.process_oauth_callback(oauth_token, oauth_verifier)
 
     def process_oauth_callback(self, oauth_token, oauth_verifier):
