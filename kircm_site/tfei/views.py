@@ -1,6 +1,6 @@
 from django.urls.base import reverse
 from django.views.generic.base import TemplateView, RedirectView
-from twython import Twython
+from twython import Twython, TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
@@ -17,14 +17,8 @@ class MainView(TemplateView):
 class MainMenuView(TemplateView):
     template_name = "tfei/main-menu.html"
 
-    tw_context = {}
-
-    def get(self, request, *args, **kwargs):
-        self.tw_context = request.session['tw_context']
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        context = {'tw_context': self.tw_context}
+        context = {'tw_context': self.request.session['tw_context']}
         return context
 
 
@@ -43,41 +37,45 @@ class LogoutView(TemplateView):
 class ErrorView(TemplateView):
     template_name = "tfei/auth-nk.html"
 
+    def get_context_data(self, **kwargs):
+        context = {'msg_context': self.request.session['msg_context']}
+        return context
+
 
 class TwAuthenticateRedirectView(RedirectView):
-
-    temp_oauth_store = {}
-    callback_url = None  # To be set once processing a request object
+    redirect_url = None
 
     def get(self, request, *args, **kwargs):
-        # Initialize oauth store in user's session
-        request.session['temp_oauth_store'] = self.temp_oauth_store
-        self.callback_url = request.build_absolute_uri(reverse('tw_auth_callback'))
+        callback_url = request.build_absolute_uri(reverse('tw_auth_callback'))
+        twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
+
+        try:
+            tw_auth = twitter.get_authentication_tokens(callback_url=callback_url, force_login=True)
+            if 'oauth_token' not in tw_auth or 'oauth_token_secret' not in tw_auth:
+                raise TwythonError(msg="Missing OAuth token and secret")
+
+        except TwythonError as e:
+            self.request.session['msg_context'] = {'error_message': f"Problem authenticating app: {e}"}
+            self.redirect_url = request.build_absolute_uri(reverse('error_view'))
+            return super().get(self, request, *args, **kwargs)
+
+        oauth_token = tw_auth['oauth_token']
+        oauth_token_secret = tw_auth['oauth_token_secret']
+
+        # Store the secret token keyed by oauth token for when tw redirects to this app
+        self.request.session['temp_oauth_store'] = {oauth_token: oauth_token_secret}
+
+        # set redirect url to tw's returned url for user authentication
+        self.redirect_url = tw_auth['auth_url']
         return super().get(self, request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
-
-        # TODO try catch - TEST Twitter responding error:
-        # Callback URL not approved for this client application.
-        # Approved callback URLs can be adjusted in your application settings
-        auth = twitter.get_authentication_tokens(callback_url=self.callback_url, force_login=True)
-
-        oauth_token = auth['oauth_token']
-        oauth_token_secret = auth['oauth_token_secret']
-        self.temp_oauth_store[oauth_token] = oauth_token_secret
-        auth_url = auth['auth_url']
-
-        return auth_url
+        return self.redirect_url
 
 
 class TwAuthCallbackView(RedirectView):
-
-    temp_oauth_store = {}
     absolute_url_builder = None
     redirect_url = None
-    tw_context = {}
-    msg_context = {}
 
     def get(self, request, *args, **kwargs):
         self.process_request(request, request.GET)
@@ -88,49 +86,48 @@ class TwAuthCallbackView(RedirectView):
         return super().post(request, *args, **kwargs)
 
     def process_request(self, request, req_method):
-        # extract temp_oauth_store and tw_context from user's session
-        self.temp_oauth_store = request.session['temp_oauth_store']
-        # Initialize tw_context in msg_context in session
-        request.session['tw_context'] = self.tw_context
-        request.session['msg_context'] = self.msg_context
-
         oauth_token = req_method['oauth_token']
         oauth_verifier = req_method['oauth_verifier']
         oauth_denied = req_method.get('denied', False)
         self.absolute_url_builder = request.build_absolute_uri
-        self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
-        return
+        return self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
 
     def process_oauth_callback(self, oauth_token, oauth_verifier, oauth_denied):
         if oauth_denied:
-            self.msg_context = {'error_message': "the OAuth request was denied by this user"}
+            self.request.session['msg_context'] = {'error_message': "The OAuth request was denied by this user"}
             self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
-        if oauth_token not in self.temp_oauth_store:
-            self.msg_context = {'error_message': "oauth_token not found locally"}
+        # retrieve the temporary OAuth store from the user's session
+        temp_oauth_store = self.request.session['temp_oauth_store']
+
+        if oauth_token not in temp_oauth_store:
+            self.request.session['msg_context'] = {'error_message': "OAuth token  not found locally"}
             self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
-        # retrieve the token secret that had been kept in oauth store before redirecting to tw auth url
-        oauth_token_secret = self.temp_oauth_store[oauth_token]
+        # We found the token secret in the temp store
+        oauth_token_secret = temp_oauth_store[oauth_token]
 
-        twitter = Twython(APP_KEY, APP_SECRET, oauth_token, oauth_token_secret)
+        try:
+            twitter = Twython(APP_KEY, APP_SECRET, oauth_token, oauth_token_secret)
+            final_oauth_tokens = twitter.get_authorized_tokens(oauth_verifier)
+            oauth_final_token = final_oauth_tokens['oauth_token']
+            oauth_final_token_secret = final_oauth_tokens['oauth_token_secret']
 
-        # try catch
-        final_oauth_tokens = twitter.get_authorized_tokens(oauth_verifier)
-        oauth_final_token = final_oauth_tokens['oauth_token']
-        oauth_final_token_secret = final_oauth_tokens['oauth_token_secret']
-
-        authenticated_twitter = Twython(APP_KEY, APP_SECRET, oauth_final_token, oauth_final_token_secret)
-        creds = authenticated_twitter.verify_credentials(skip_status=True,
-                                                         include_entities=False,
-                                                         include_email=False)
+            authenticated_twitter = Twython(APP_KEY, APP_SECRET, oauth_final_token, oauth_final_token_secret)
+            creds = authenticated_twitter.verify_credentials(skip_status=True,
+                                                             include_entities=False,
+                                                             include_email=False)
+        except TwythonError as e:
+            self.request.session['msg_context'] = {'error_message': f"Problem authenticating user: {e}"}
+            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
+            return
 
         # we don't need the temporary OAuth tokens anymore
-        del self.temp_oauth_store
+        del self.request.session['temp_oauth_store']
 
-        self.tw_context = {
+        self.request.session['tw_context'] = {
             'oauth_final_token': oauth_final_token,
             'oauth_final_token_secret': oauth_final_token_secret,
             'user_screen_name': creds['screen_name']
