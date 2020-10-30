@@ -86,25 +86,28 @@ class TwAuthCallbackView(RedirectView):
         return super().post(request, *args, **kwargs)
 
     def process_request(self, request, req_method):
+        oauth_denied = req_method.get('denied', False)
+        if oauth_denied:
+            msg = "The OAuth request was denied by this user"
+            return self.redirect_to_error_view(msg)
+
         oauth_token = req_method['oauth_token']
         oauth_verifier = req_method['oauth_verifier']
-        oauth_denied = req_method.get('denied', False)
+
+        if not oauth_token or not oauth_verifier:
+            msg = "Problem interacting with Twitter's OAuth's system"
+            return self.redirect_to_error_view(msg)
+
         self.absolute_url_builder = request.build_absolute_uri
-        return self.process_oauth_callback(oauth_token, oauth_verifier, oauth_denied)
+        return self.process_oauth_callback(oauth_token, oauth_verifier)
 
-    def process_oauth_callback(self, oauth_token, oauth_verifier, oauth_denied):
-        if oauth_denied:
-            self.request.session['msg_context'] = {'error_message': "The OAuth request was denied by this user"}
-            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
-            return
-
+    def process_oauth_callback(self, oauth_token, oauth_verifier):
         # retrieve the temporary OAuth store from the user's session
         temp_oauth_store = self.request.session['temp_oauth_store']
 
         if oauth_token not in temp_oauth_store:
-            self.request.session['msg_context'] = {'error_message': "OAuth token  not found locally"}
-            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
-            return
+            msg = "OAuth token not found locally"
+            return self.redirect_to_error_view(msg)
 
         # We found the token secret in the temp store
         oauth_token_secret = temp_oauth_store[oauth_token]
@@ -120,9 +123,8 @@ class TwAuthCallbackView(RedirectView):
                                                              include_entities=False,
                                                              include_email=False)
         except TwythonError as e:
-            self.request.session['msg_context'] = {'error_message': f"Problem authenticating user: {e}"}
-            self.redirect_url = self.absolute_url_builder(reverse("error_view"))
-            return
+            msg = f"Problem authenticating user: {e}"
+            return self.redirect_to_error_view(msg)
 
         # we don't need the temporary OAuth tokens anymore
         del self.request.session['temp_oauth_store']
@@ -134,6 +136,11 @@ class TwAuthCallbackView(RedirectView):
         }
 
         self.redirect_url = self.absolute_url_builder(reverse("main_menu"))
+        return
+
+    def redirect_to_error_view(self, error_message):
+        self.request.session['msg_context'] = {'error_message': error_message}
+        self.redirect_url = self.absolute_url_builder(reverse("error_view"))
         return
 
     def get_redirect_url(self, *args, **kwargs):
