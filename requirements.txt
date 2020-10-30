@@ -1,3 +1,3 @@
 Django==3.1.2
-django-environ
-twython
+django-environ==0.4.5
+twython==3.8.2

@@ -107,13 +107,13 @@ class TwAuthCallbackView(RedirectView):
             self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
-        if oauth_token not in self.oauth_store:
+        if oauth_token not in self.temp_oauth_store:
             self.msg_context = {'error_message': "oauth_token not found locally"}
             self.redirect_url = self.absolute_url_builder(reverse("error_view"))
             return
 
         # retrieve the token secret that had been kept in oauth store before redirecting to tw auth url
-        oauth_token_secret = self.oauth_store[oauth_token]
+        oauth_token_secret = self.temp_oauth_store[oauth_token]
 
         twitter = Twython(APP_KEY, APP_SECRET, oauth_token, oauth_token_secret)
 
