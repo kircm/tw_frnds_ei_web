@@ -1,6 +1,9 @@
+from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
-from django.views.generic.base import TemplateView, RedirectView
-from twython import Twython, TwythonError
+from django.views.generic.base import RedirectView
+from django.views.generic.base import TemplateView
+from twython import Twython
+from twython import TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
@@ -10,8 +13,20 @@ class MainMenuView(TemplateView):
     template_name = "tfei/main-menu.html"
 
     def get_context_data(self, **kwargs):
-        context = {'tw_context': self.request.session['tw_context']}
-        return context
+        if 'tw_context' in self.request.session:
+            context = {'tw_context': self.request.session['tw_context'],
+                       'user': self.request.user}
+            return context
+        else:
+            raise PermissionDenied
+
+
+class LogoutView(TemplateView):
+    template_name = "tfei/logout.html"
+
+    def get(self, request, *args, **kwargs):
+        self.request.session.flush()
+        return super().get(request, *args, **kwargs)
 
 
 class ErrorView(TemplateView):
