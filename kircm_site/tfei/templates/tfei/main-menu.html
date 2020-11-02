@@ -1,9 +1,12 @@
 {% extends "tfei/base.html" %}
 {% block containercontent %}
-<p class="hero-unit">
-	{% include "tfei/navigation.html" %}
-</p>
-<p class="hero-unit">
-	{{ tw_context }}
-</p>
+<div class="container container_inner">
+	<div class="row">
+        <div class="col-2">
+			{% include "tfei/navigation.html" %}
+        </div>
+        <div class="col w-33"></div>
+        <div class="col w-33"></div>
+    </div>
+</div>
 {% endblock containercontent %}
