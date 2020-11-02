@@ -113,7 +113,10 @@ class TwAuthCallbackView(RedirectView):
         self.request.session['tw_context'] = {
             'oauth_final_token': oauth_final_token,
             'oauth_final_token_secret': oauth_final_token_secret,
-            'user_screen_name': creds['screen_name']
+            'user_id': creds['id'],
+            'user_screen_name': creds['screen_name'],
+            'user_name': creds['name'],
+            'user_friends_count': creds['friends_count']
         }
 
         self.redirect_url = self.absolute_url_builder(reverse("main_menu"))
