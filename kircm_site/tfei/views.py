@@ -6,32 +6,12 @@ from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
 
 
-class IndexView(TemplateView):
-    template_name = "tfei/index.html"
-
-
-class MainView(TemplateView):
-    template_name = "tfei/main.html"
-
-
 class MainMenuView(TemplateView):
     template_name = "tfei/main-menu.html"
 
     def get_context_data(self, **kwargs):
         context = {'tw_context': self.request.session['tw_context']}
         return context
-
-
-class ExportView(TemplateView):
-    template_name = "tfei/export.html"
-
-
-class ImportView(TemplateView):
-    template_name = "tfei/import.html"
-
-
-class LogoutView(TemplateView):
-    template_name = "tfei/logout.html"
 
 
 class ErrorView(TemplateView):
@@ -87,7 +67,7 @@ class TwAuthCallbackView(RedirectView):
 
     def process_request(self, request, req_method):
         self.absolute_url_builder = request.build_absolute_uri
-        
+
         oauth_denied = req_method.get('denied', False)
         if oauth_denied:
             msg = "The OAuth request was denied by this user"

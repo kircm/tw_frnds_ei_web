@@ -16,13 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import RedirectView
-
-from .views import index
+from django.views.generic import TemplateView
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
 
 urlpatterns = [
-    path('', index),
+    path('', TemplateView.as_view(template_name='index.html'), name="home"),
     re_path(r'^favicon\.ico$', favicon_view),
     path('tfei/', include('tfei.urls')),
     path('admin/', admin.site.urls),
