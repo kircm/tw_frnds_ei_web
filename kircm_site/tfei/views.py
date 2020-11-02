@@ -7,6 +7,7 @@ from twython import TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
+from .config_env import D_AUTH
 
 
 class MainMenuView(TemplateView):
@@ -14,8 +15,10 @@ class MainMenuView(TemplateView):
 
     def get_context_data(self, **kwargs):
         if 'tw_context' in self.request.session:
-            context = {'tw_context': self.request.session['tw_context'],
-                       'user': self.request.user}
+            context = {'tw_context': self.request.session['tw_context']}
+            return context
+        elif 'd_auth' in D_AUTH:
+            context = {'tw_context': D_AUTH['d_auth']}
             return context
         else:
             raise PermissionDenied
