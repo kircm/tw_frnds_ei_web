@@ -135,3 +135,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = env('STATIC_ROOT')
 
+# Can be overridden in a local env
+D_AUTH = {}
