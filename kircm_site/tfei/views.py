@@ -24,6 +24,22 @@ class MainMenuView(TemplateView):
         return {}
 
 
+class ExportView(TemplateView):
+    template_name = "tfei/export.html"
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class ImportView(TemplateView):
+    template_name = "tfei/import.html"
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        return {}
+
+
 class LogoutView(TemplateView):
     template_name = "tfei/logout.html"
 
