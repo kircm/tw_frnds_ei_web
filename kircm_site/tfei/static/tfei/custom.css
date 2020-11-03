@@ -23,7 +23,7 @@
   padding: 15px;
 }
 
-.container_inner {
+.container-inner {
   padding-top: 0px;
   padding-left: 0px;
 }
@@ -60,4 +60,11 @@
 
 .err-msg {
   text-align: center;
+}
+
+.center-text {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }

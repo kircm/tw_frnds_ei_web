@@ -1,26 +1,32 @@
 {% extends "tfei/base.html" %}
 {% block containercontent %}
-<p class="hero-unit">
-    <p>You've been logged out. Twitter tokens are now invalid. You may close this browser window.</p>
+<div>
     <p>
-        Unless you want to use this app again, you should also revoke access
-        for the App (<b>FriendsEI_app</b>) in your Twitter
-        <a href="https://twitter.com/settings/connected_apps">Connected Apps</a>:
+        You've been logged out from this app.
+        Your Twitter tokens for this app <b>are now invalid</b>.
     </p>
-</p>
-<p class="hero-unit">
-    <a href="https://twitter.com/settings/connected_apps">
-        <img class="img-brd-cent" src="/static/tfei/tw_connected_apps_tfei.png">
-    </a>
-</p>
-
-<!--
-
-        # TODO: logout of Twitter
-        # Add Button Twitter LOGOUT
-        # https: // twitter.com / logout
-
-
--->
-
+    <p>
+        However, Twitter still keeps your <b>authentication alive</b>.
+    </p>
+    <p>
+        Also, unless you want to use this app again, you should <b>revoke access</b>
+        for this app (FriendsEI_app) in your Twitter
+        <a href="https://twitter.com/settings/connected_apps" target="_blank">
+            Connected Apps
+        </a>
+    </p>
+    <p>
+        <a href="https://twitter.com/settings/connected_apps" target="_blank">
+            <img class="img-brd-cent" src="/static/tfei/tw_connected_apps_tfei.png">
+        </a>
+    </p>
+    <p>
+        Once done that, you may logout of Twitter:
+    </p>
+    <p>
+        <a href="https://twitter.com/logout" class="btn btn-small btn-success button-ok">
+            Twitter Logout
+        </a>
+    </p>
+</div>
 {% endblock containercontent %}
