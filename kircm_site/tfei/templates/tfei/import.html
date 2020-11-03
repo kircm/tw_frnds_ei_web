@@ -1,8 +1,14 @@
 {% extends "tfei/base.html" %}
 {% block containercontent %}
-<p class="hero-unit">
-    <p>This is my Import page content</p>
-    <p>Some explanation here</p>
-</p>
-<a href="#" class="btn btn-small btn-success button_ok">Pending</a>
+<div class="container container_inner">
+	<div class="row">
+        <div class="col-2">
+			{% include "tfei/navigation.html" %}
+        </div>
+        <div class="col-10">
+            <p>This is my Import page content</p>
+            <p>Some explanation here</p>
+        </div>
+    </div>
+</div>
 {% endblock containercontent %}

@@ -1,7 +1,5 @@
 {% extends "tfei/base.html" %}
+
 {% block containercontent %}
-<p class="hero-unit">
-	Auth NOT OK
-	{{ msg_context }}
-</p>
-{% endblock containercontent %}
+	{% include "tfei/err-msg.html" with errmsgtext="Authentication failed :-) Try Again?" %}
+{% endblock %}

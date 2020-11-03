@@ -28,14 +28,14 @@
   padding-left: 0px;
 }
 
-.button_ok {
+.button-ok {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: 40%;
 }
 
-.img_brd_cent {
+.img-brd-cent {
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -56,4 +56,8 @@
 .nav-options {
   position: relative;
   padding: 12px 15px;
+}
+
+.err-msg {
+  text-align: center;
 }
