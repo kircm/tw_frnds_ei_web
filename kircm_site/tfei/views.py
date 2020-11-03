@@ -1,4 +1,3 @@
-from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
@@ -7,21 +6,22 @@ from twython import TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
-from .config_env import D_AUTH
+from .view_decorators import requires_tw_context
+
+
+class IndexView(TemplateView):
+    template_name = "tfei/index.html"
+
+    def get_context_data(self, **kwargs):
+        return {}
 
 
 class MainMenuView(TemplateView):
     template_name = "tfei/main-menu.html"
 
+    @requires_tw_context
     def get_context_data(self, **kwargs):
-        if 'tw_context' in self.request.session:
-            context = {'tw_context': self.request.session['tw_context']}
-            return context
-        elif 'd_auth' in D_AUTH:
-            context = {'tw_context': D_AUTH['d_auth']}
-            return context
-        else:
-            raise PermissionDenied
+        return {}
 
 
 class LogoutView(TemplateView):
