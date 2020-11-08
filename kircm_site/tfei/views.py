@@ -3,6 +3,7 @@ from django.views.generic.base import TemplateView
 
 from .view_decorators import requires_tw_context
 from .view_helpers import authenticate_app
+from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
 
 
@@ -41,7 +42,7 @@ class LogoutView(TemplateView):
     template_name = "tfei/logout.html"
 
     def get(self, request, *args, **kwargs):
-        self.request.session.flush()
+        logout_user(request)
         return super().get(request, *args, **kwargs)
 
 

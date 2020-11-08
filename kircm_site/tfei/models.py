@@ -44,3 +44,10 @@ class TwUser(models.Model):
         u.tw_token = tw['oauth_final_token']
         u.tw_token_sec = tw['oauth_final_token_secret']
         u.save()
+
+    @classmethod
+    def clear_tw_tokens(cls, tw_id):
+        u = cls.objects.get(tw_id=tw_id)
+        u.tw_token = ""
+        u.tw_token_sec = ""
+        u.save()

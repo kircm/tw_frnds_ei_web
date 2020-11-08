@@ -94,3 +94,10 @@ def redirect_to_error_view(request, error_message):
     request.session['msg_context'] = {'error_message': error_message}
     redirect_url = request.build_absolute_uri(reverse("error_view"))
     return redirect_url
+
+
+def logout_user(request):
+    if 'tw_context' in request.session:
+        tw_id = request.session['tw_context']['user_id']
+        TwUser.clear_tw_tokens(tw_id)  # clear tokens from DB
+    request.session.flush()  # clear tokens from session
