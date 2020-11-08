@@ -69,11 +69,11 @@ class TwAuthCallbackView(RedirectView):
     redirect_url = None
 
     def get(self, request, *args, **kwargs):
-        process_tw_oauth_callback_request(request, request.GET)
+        self.redirect_url = process_tw_oauth_callback_request(request, request.GET)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        process_tw_oauth_callback_request(request, request.POST)
+        self.redirect_url = process_tw_oauth_callback_request(request, request.POST)
         return super().post(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
