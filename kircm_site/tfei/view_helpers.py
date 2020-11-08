@@ -4,6 +4,7 @@ from twython import TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
+from .models import TwUser
 
 
 def authenticate_app(request):
@@ -74,7 +75,7 @@ def process_oauth_callback(request, oauth_token, oauth_verifier):
     # we don't need the temporary OAuth tokens anymore
     del request.session['temp_oauth_store']
 
-    request.session['tw_context'] = {
+    tw_context = {
         'oauth_final_token': oauth_final_token,
         'oauth_final_token_secret': oauth_final_token_secret,
         'user_id': creds['id'],
@@ -82,6 +83,8 @@ def process_oauth_callback(request, oauth_token, oauth_verifier):
         'user_name': creds['name'],
         'user_friends_count': creds['friends_count']
     }
+    request.session['tw_context'] = tw_context
+    TwUser.create_or_update_from_tw_context(tw_context)
 
     redirect_url = request.build_absolute_uri(reverse("main_menu"))
     return redirect_url
