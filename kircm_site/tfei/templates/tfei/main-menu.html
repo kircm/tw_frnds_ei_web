@@ -1,14 +1,14 @@
-{% extends "tfei/base.html" %}
-{% block containercontent %}
-<div class="container container-inner">
-	<div class="row">
-        <div class="col-2">
-			{% include "tfei/navigation.html" %}
-        </div>
-        <div class="col-10">
-            Hello, {{ tw_context.user_name }}!
-        </div>
-
-    </div>
-</div>
-{% endblock containercontent %}
+{% extends "tfei/base-menu.html" %}
+{% block actioncontent %}
+            <p>Hello, {{ tw_context.user_name }}!</p>
+            <p>You've been authenticated into Twitter successfully.</p>
+            <p>
+                Your Twitter handle name is <b>{{ tw_context.user_screen_name }}</b>
+            </p>
+            <p>
+                You have {{ tw_context.user_friends_count }} friends (accounts you follow).
+            </p>
+            <p>
+                <<< You can export them using the actions menu
+            </p>
+{% endblock actioncontent %}
