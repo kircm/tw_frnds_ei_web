@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
@@ -79,7 +80,12 @@ class TwUser(models.Model):
 
     @classmethod
     def clear_tw_tokens(cls, tw_id):
-        u = cls.objects.get(tw_id=tw_id)
-        u.tw_token = None
-        u.tw_token_sec = None
-        u.save()
+        try:
+            u = cls.objects.get(tw_id=tw_id)
+            u.tw_token = None
+            u.tw_token_sec = None
+            u.save()
+        except ObjectDoesNotExist:
+            # user got deleted from admin site?
+            # in any case user is definitely logged-out!
+            pass
