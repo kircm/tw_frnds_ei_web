@@ -2,13 +2,27 @@ from django.db import models
 
 
 class Task(models.Model):
+    class TaskType(models.TextChoices):
+        IMPORT = 'IMPORT'
+        EXPORT = 'EXPORT'
+
+    class TaskStatus(models.TextChoices):
+        CREATED = 'CREATED'
+        PENDING = 'PENDING'
+        RUNNING = 'RUNNING'
+        FINISHED = 'FINISHED'
+        CANCELED = 'CANCELED'
+
+    class UserTaskExisting(Exception):
+        pass
+
     tw_user = models.ForeignKey('TwUser', on_delete=models.PROTECT)
     tw_screen_name_for_task = models.CharField(max_length=30)
 
-    task_type = models.CharField(max_length=20)
-    task_status = models.CharField(max_length=20)
-    task_par_tw_id = models.BigIntegerField()
-    task_par_f_name = models.CharField(max_length=100)
+    task_type = models.CharField(max_length=20, choices=TaskType.choices)
+    task_status = models.CharField(max_length=20, choices=TaskStatus.choices)
+    task_par_tw_id = models.BigIntegerField(null=True)
+    task_par_f_name = models.CharField(max_length=100, null=True)
 
     pending_at = models.DateTimeField(auto_now_add=True)
     running_at = models.DateTimeField(blank=True, null=True)
@@ -28,8 +42,8 @@ class TwUser(models.Model):
     tw_id = models.BigIntegerField(primary_key=True)
     tw_screen_name = models.CharField(max_length=30)
 
-    tw_token = models.CharField(max_length=100)
-    tw_token_sec = models.CharField(max_length=100)
+    tw_token = models.CharField(max_length=100, null=True)
+    tw_token_sec = models.CharField(max_length=100, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -48,6 +62,6 @@ class TwUser(models.Model):
     @classmethod
     def clear_tw_tokens(cls, tw_id):
         u = cls.objects.get(tw_id=tw_id)
-        u.tw_token = ""
-        u.tw_token_sec = ""
+        u.tw_token = None
+        u.tw_token_sec = None
         u.save()
