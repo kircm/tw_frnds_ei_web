@@ -37,6 +37,24 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.task_type} - {self.tw_user} - {self.task_status} - updated-at: {self.updated_at}"
 
+    @classmethod
+    def create_from_tw_context(cls, task_type, tw):
+        u_id = tw['user_id']
+        u = TwUser.objects.get(tw_id=u_id)
+        existing = cls.objects.filter(
+            tw_user=u,
+            task_status=cls.TaskStatus.PENDING
+        )
+        if existing:
+            raise cls.UserTaskExisting()
+        t = cls.objects.create(
+            tw_user=u,
+            tw_screen_name_for_task=u.tw_screen_name,
+            task_type=cls.TaskType.EXPORT,
+            task_status=cls.TaskStatus.PENDING
+        )
+        t.save()
+
 
 class TwUser(models.Model):
     tw_id = models.BigIntegerField(primary_key=True)

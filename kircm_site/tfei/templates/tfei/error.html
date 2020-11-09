@@ -1,0 +1,11 @@
+{% extends "tfei/base-menu.html" %}
+{% block actioncontent %}
+            <!--
+            Info for debugging:
+
+            request.session.msg_context.error_message:
+            {{ request.session.msg_context.error_message }}
+            -->
+            <p>Error:</p>
+            <p>{{ msg_context.error_message }}</p>
+{% endblock actioncontent %}

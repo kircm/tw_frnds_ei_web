@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 
 from .views import ErrorView
 from .views import ExportView
@@ -13,6 +14,7 @@ urlpatterns = [
     path('', IndexView.as_view(), name='index'),
     path('tw_auth', TwAuthenticateRedirectView.as_view(), name='tw_auth'),
     path('tw_auth_callback', TwAuthCallbackView.as_view(), name='tw_auth_callback'),
+    path('auth_error', TemplateView.as_view(template_name="tfei/auth-nk.html"), name='auth_error'),
     path('mainmenu', MainMenuView.as_view(), name='main_menu'),
     path('export', ExportView.as_view(), name='export'),
     path('import', ImportView.as_view(), name='import'),

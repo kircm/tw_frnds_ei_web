@@ -13,6 +13,8 @@ def requires_tw_context(get_context_fun):
         elif 'd_auth' in settings.D_AUTH:
             context.update({'tw_context': settings.D_AUTH['d_auth']})
         else:
+            msg = "403 Not Authorized"
+            sess['msg_context'] = {'error_message': msg}
             raise PermissionDenied
         return context
 

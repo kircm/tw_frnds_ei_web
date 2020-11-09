@@ -1,10 +1,14 @@
+from django.shortcuts import redirect
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 
+from .models import Task
 from .view_decorators import requires_tw_context
+from .view_helpers import TwContextGetter
 from .view_helpers import authenticate_app
 from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
+from .view_helpers import redirect_to_error_view
 
 
 class IndexView(TemplateView):
@@ -25,6 +29,16 @@ class MainMenuView(TemplateView):
 class ExportView(TemplateView):
     template_name = "tfei/export.html"
 
+    def get(self, request, *args, **kwargs):
+        tw_context = TwContextGetter(self.request).get_tw_context()
+        try:
+            Task.create_from_tw_context('', tw_context)
+        except Task.UserTaskExisting:
+            msg = "There is already a non-finished task for this user"
+            return redirect(redirect_to_error_view(self.request, msg))
+
+        return super().get(request, *args, **kwargs)
+
     @requires_tw_context
     def get_context_data(self, **kwargs):
         return {}
@@ -32,6 +46,9 @@ class ExportView(TemplateView):
 
 class ImportView(TemplateView):
     template_name = "tfei/import.html"
+
+    def get(self, request, *args, **kwargs):
+        return super().get(self, *args, **kwargs)
 
     @requires_tw_context
     def get_context_data(self, **kwargs):
@@ -47,10 +64,13 @@ class LogoutView(TemplateView):
 
 
 class ErrorView(TemplateView):
-    template_name = "tfei/auth-nk.html"
+    template_name = "tfei/error.html"
 
     def get_context_data(self, **kwargs):
-        context = {'msg_context': self.request.session['msg_context']}
+        if 'msg_context' in self.request.session:
+            context = {'msg_context': self.request.session['msg_context']}
+        else:
+            context = {'msg_context': {'error_message': "Unknown Error! Please logout and re-authenticate"}}
         return context
 
 
