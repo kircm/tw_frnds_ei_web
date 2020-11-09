@@ -12,7 +12,6 @@ class Task(models.Model):
         PENDING = 'PENDING'
         RUNNING = 'RUNNING'
         FINISHED = 'FINISHED'
-        CANCELED = 'CANCELED'
 
     class UserTaskExisting(Exception):
         pass
@@ -40,21 +39,19 @@ class Task(models.Model):
 
     @classmethod
     def create_from_tw_context(cls, task_type, tw):
-        u_id = tw['user_id']
-        u = TwUser.objects.get(tw_id=u_id)
-        existing = cls.objects.filter(
-            tw_user=u,
-            task_status=cls.TaskStatus.PENDING
-        )
-        if existing:
+        u = TwUser.objects.get(pk=tw['user_id'])
+
+        existing_not_finished = cls.objects.filter(tw_user=u).exclude(task_status__exact=cls.TaskStatus.FINISHED)
+        if existing_not_finished:
+            # Stop creating new task for user - there is one pending or running
             raise cls.UserTaskExisting()
-        t = cls.objects.create(
+
+        cls.objects.create(
             tw_user=u,
             tw_screen_name_for_task=u.tw_screen_name,
-            task_type=cls.TaskType.EXPORT,
-            task_status=cls.TaskStatus.PENDING
+            task_type=task_type,
+            task_status=cls.TaskStatus.CREATED
         )
-        t.save()
 
 
 class TwUser(models.Model):
@@ -72,7 +69,7 @@ class TwUser(models.Model):
 
     @classmethod
     def create_or_update_from_tw_context(cls, tw):
-        u, created = cls.objects.get_or_create(tw_id=tw['user_id'])
+        u, created = cls.objects.get_or_create(pk=tw['user_id'])
         u.tw_screen_name = tw['user_screen_name']
         u.tw_token = tw['oauth_final_token']
         u.tw_token_sec = tw['oauth_final_token_secret']
@@ -81,7 +78,7 @@ class TwUser(models.Model):
     @classmethod
     def clear_tw_tokens(cls, tw_id):
         try:
-            u = cls.objects.get(tw_id=tw_id)
+            u = cls.objects.get(pk=tw_id)
             u.tw_token = None
             u.tw_token_sec = None
             u.save()

@@ -1,42 +1,20 @@
-from django.shortcuts import redirect
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 
 from .models import Task
+from .view_decorators import requires_auth
 from .view_decorators import requires_tw_context
-from .view_helpers import TwContextGetter
 from .view_helpers import authenticate_app
+from .view_helpers import create_task_for_user
 from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
-from .view_helpers import redirect_to_error_view
-
-
-class IndexView(TemplateView):
-    template_name = "tfei/index.html"
-
-    def get_context_data(self, **kwargs):
-        return {}
 
 
 class MainMenuView(TemplateView):
     template_name = "tfei/main-menu.html"
 
-    @requires_tw_context
-    def get_context_data(self, **kwargs):
-        return {}
-
-
-class ExportView(TemplateView):
-    template_name = "tfei/export.html"
-
+    @requires_auth
     def get(self, request, *args, **kwargs):
-        tw_context = TwContextGetter(self.request).get_tw_context()
-        try:
-            Task.create_from_tw_context('', tw_context)
-        except Task.UserTaskExisting:
-            msg = "There is already a non-finished task for this user"
-            return redirect(redirect_to_error_view(self.request, msg))
-
         return super().get(request, *args, **kwargs)
 
     @requires_tw_context
@@ -44,11 +22,40 @@ class ExportView(TemplateView):
         return {}
 
 
-class ImportView(TemplateView):
-    template_name = "tfei/import.html"
+class ExportView(RedirectView):
+    redirect_url = None
 
+    @requires_auth
     def get(self, request, *args, **kwargs):
+        self.redirect_url = create_task_for_user(request, Task.TaskType.EXPORT.name, "export_ok")
+        return super().get(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.redirect_url
+
+
+class ExportOkView(TemplateView):
+    template_name = "tfei/export-ok.html"
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class ImportView(RedirectView):
+    redirect_url = None
+
+    @requires_auth
+    def get(self, request, *args, **kwargs):
+        self.redirect_url = create_task_for_user(request, Task.TaskType.IMPORT.name, "import_ok")
         return super().get(self, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.redirect_url
+
+
+class ImportOkView(TemplateView):
+    template_name = "tfei/import-ok.html"
 
     @requires_tw_context
     def get_context_data(self, **kwargs):

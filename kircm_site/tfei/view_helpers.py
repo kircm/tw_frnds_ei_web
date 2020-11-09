@@ -4,6 +4,7 @@ from twython import TwythonError
 
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
+from .models import Task
 from .models import TwUser
 from .view_decorators import requires_tw_context
 
@@ -19,6 +20,16 @@ class TwContextGetter:
 
     def get_tw_context(self):
         return self.get_context()['tw_context']
+
+
+def create_task_for_user(request, task_type, ok_view):
+    tw_context = TwContextGetter(request).get_tw_context()
+    try:
+        Task.create_from_tw_context(task_type, tw_context)
+    except Task.UserTaskExisting:
+        msg = "There is already a non-finished task for this user"
+        return redirect_to_error_view(request, msg)
+    return request.build_absolute_uri(reverse(ok_view))
 
 
 def authenticate_app(request):
