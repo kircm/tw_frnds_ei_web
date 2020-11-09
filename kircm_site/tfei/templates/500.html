@@ -1,0 +1,5 @@
+{% extends "tfei/base.html" %}
+
+{% block containercontent %}
+	{% include "tfei/auth-err-msg.html" with errmsgtext="There was a system error. Please re-authenticate." %}
+{% endblock %}
