@@ -24,7 +24,7 @@ class Task(models.Model):
     task_par_tw_id = models.BigIntegerField(blank=True, null=True)
     task_par_f_name = models.CharField(max_length=100, blank=True, null=True)
 
-    pending_at = models.DateTimeField(auto_now_add=True)
+    pending_at = models.DateTimeField(blank=True, null=True)
     running_at = models.DateTimeField(blank=True, null=True)
     finished_at = models.DateTimeField(blank=True, null=True)
 
