@@ -1,0 +1,5 @@
+DEBUG='False'
+MYSQL_DB_HOST='my_mysql_db_host'
+MYSQL_DB_PASSWORD='my_mysql_db_password'
+TW_FRNDS_EI_APP_KEY='my_twitter_frnds_ei_app_key'
+TW_FRNDS_EI_APP_SECRET='my_twitter_frnds_ei_app_secret'
