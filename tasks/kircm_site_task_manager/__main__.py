@@ -61,5 +61,5 @@ class Main:
         return engine
 
 
-if __name__ == "__main__":
+if __name__ == "kircm_site_task_manager.__main__":
     Main(Main.get_db_engine()).main()
