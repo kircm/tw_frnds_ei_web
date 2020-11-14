@@ -1,6 +1,7 @@
+from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import BigInteger
+from sqlalchemy import BigInteger, func
 from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
@@ -13,12 +14,12 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+TaskType = Enum('TaskType', 'IMPORT EXPORT')
+TaskStatus = Enum('TaskStatus', 'CREATED APP_ERROR PENDING RUNNING FINISHED')
+
 
 class TfeiTask(Base):
     __tablename__ = 'tfei_task'
-
-    TaskType = Enum('TaskType', 'IMPORT EXPORT')
-    TaskStatus = Enum('TaskStatus', 'CREATED PENDING RUNNING FINISHED')
 
     id = Column(Integer(), primary_key=True)
     tw_screen_name_for_task = Column(String(30))
@@ -40,13 +41,54 @@ class TfeiTask(Base):
     def __str__(self):
         return f"{self.task_type} - {self.tw_user} - {self.task_status} - updated-at: {self.updated_at}"
 
+    def set_status_to(self, db_session, task_status):
+        self.task_status = task_status.name
+        self.updated_at = datetime.now()
+        db_session.commit()
+
+    # TODO: Move fetching of tasks to custom model manager?
+
+    @staticmethod
+    def get_by_id(db_sess, task_id):
+        task = db_sess.query(TfeiTask).get(task_id)
+        db_sess.commit()
+        return task
+
     @staticmethod
     def created():
-        return TfeiTask.task_status == TfeiTask.TaskStatus.CREATED.name
+        return TfeiTask.task_status == TaskStatus.CREATED.name
+
+    @staticmethod
+    def pending():
+        return TfeiTask.task_status == TaskStatus.PENDING.name
 
     @staticmethod
     def get_created(db_session):
-        return db_session.query(TfeiTask).filter(TfeiTask.created())
+        created = db_session.query(TfeiTask).filter(TfeiTask.created())
+        db_session.commit()
+        return created
+
+    @staticmethod
+    def get_pending(db_session):
+        pending = db_session.query(TfeiTask).filter(TfeiTask.pending())
+        db_session.commit()
+        return pending
+
+    @staticmethod
+    def count_crated(db_session):
+        count = db_session.query(func.count(TfeiTask.id)) \
+            .filter(TfeiTask.task_status == TaskStatus.CREATED.name) \
+            .scalar()
+        db_session.commit()
+        return count
+
+    @staticmethod
+    def count_crated_or_pending(db_session):
+        count = db_session.query(func.count(TfeiTask.id)) \
+            .filter(TfeiTask.task_status.in_([TaskStatus.CREATED.name, TaskStatus.PENDING.name])) \
+            .scalar()
+        db_session.commit()
+        return count
 
 
 class TfeiTwUser(Base):

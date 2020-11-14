@@ -2,6 +2,7 @@ import logging
 import time
 
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from .config_env import MYSQL_DB_HOST
 from .config_env import MYSQL_DB_PASSWORD
@@ -11,13 +12,13 @@ from .main_loop_step import run_main_loop_step
 logger = logging.getLogger(__name__)
 logger.info(f"Logging enabled. Logging level: {logging.getLevelName(LOG_LEVEL)}")
 
-TIMEOUT = 300
-WAIT = 40
+TIMEOUT = 3000
+WAIT = 4
 
 
 class Main:
     def __init__(self, db_engine):
-        self.db_engine = db_engine
+        self.session_maker = sessionmaker(bind=db_engine)
 
     def main(self):
         print("Main Start")
@@ -28,19 +29,20 @@ class Main:
 
         try:
             while condition:
+                logger.info("Running MAIN loop step")
 
                 # RUN
-                run_main_loop_step(self.db_engine)
+                run_main_loop_step(self.session_maker)
 
-                # for now run one loop step
-                # return
-                # for now run one loop step
-
+                logger.info("MAIN loop step has been run. Did we do any work?")
+                logger.info("Sleeping...")
                 time.sleep(WAIT)
 
                 # check for timeout
                 now = int(time.time())
                 condition = now < end
+                if condition:
+                    logger.info(f"MAIN loop: TIMEOUT of {TIMEOUT} seconds reached.")
 
         except Exception as e:
             logger.error(e)
