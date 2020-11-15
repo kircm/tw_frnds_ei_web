@@ -33,7 +33,7 @@ def task_thread(pars):
 
         running_task = pending_task  # just for clarity
         logger.info(f"Working on: {task_id} - {running_task} .................")
-        time.sleep(random.randrange(30, 600))
+        time.sleep(random.randrange(300, 5000))
 
         logger.info(f"FINISHED task: {task_id} - {running_task}")
         running_task.set_status_to(db_sess, TaskStatus.FINISHED)
