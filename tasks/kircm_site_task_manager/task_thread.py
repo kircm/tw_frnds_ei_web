@@ -33,11 +33,27 @@ def task_thread(pars):
 
         running_task = pending_task  # just for clarity
         logger.info(f"Working on: {task_id} - {running_task} .................")
-        time.sleep(random.randrange(300, 5000))
+
+        start = int(time.time())
+        time_to_finish = start + random.randrange(300, 5000)
+        hit_db_every = 30
+
+        condition = start < time_to_finish
+        while condition:
+            time.sleep(hit_db_every)
+            now = int(time.time())
+            my_task = TfeiTask.get_by_id(db_sess, task_id)
+            logger.info(f"Still working on task {task_id} with status {my_task.task_status} "
+                        f"and type {my_task.task_type}... Still {time_to_finish - now} secs to go")
+            condition = now < time_to_finish
 
         logger.info(f"FINISHED task: {task_id} - {running_task}")
         running_task.set_status_to(db_sess, TaskStatus.FINISHED)
         logger.info(f"Set task to FINISHED status: {task_id} - {running_task}")
+
+    except Exception as e:
+        logger.error(e)
+        raise e
 
     finally:
         db_sess.close()
