@@ -59,7 +59,11 @@ class Main:
     def get_db_engine():
         engine = create_engine(f"mysql://kircm:{MYSQL_DB_PASSWORD}@{MYSQL_DB_HOST}/kircm$kircm_db",
                                encoding='utf8',
-                               echo=False)
+                               echo=False,
+                               pool_recycle=280  # this is needed to avoid losing
+                                                 # idle DB connections
+                                                 # https://help.pythonanywhere.com/pages/UsingSQLAlchemywithMySQL/
+                               )
         return engine
 
 
