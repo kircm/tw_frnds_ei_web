@@ -54,6 +54,7 @@ class TaskMonitor:
         return num_unfinished
 
     def monitor(self):
+        threading.current_thread().name = "TaskMonitor"
         logger.info(f"Starting monitoring on futures: {self.__TASK_FUTURES}")
         unfinished = self.num_unfinished()
         logger.info(f"Initial unfinished task futures: {unfinished}")

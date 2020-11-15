@@ -12,8 +12,8 @@ from .main_loop_step import run_main_loop_step
 logger = logging.getLogger(__name__)
 logger.info(f"Logging enabled. Logging level: {logging.getLevelName(LOG_LEVEL)}")
 
-TIMEOUT = 3000
-WAIT = 4
+TIMEOUT = 7 * 24 * 60 * 60  # After 7 days exit the main program - it will be restarted by hosting provider
+WAIT = 10  # Sleeping time for polling DB
 
 
 class Main:
@@ -41,7 +41,7 @@ class Main:
                 # check for timeout
                 now = int(time.time())
                 condition = now < end
-                if condition:
+                if not condition:
                     logger.info(f"MAIN loop: TIMEOUT of {TIMEOUT} seconds reached.")
 
         except Exception as e:

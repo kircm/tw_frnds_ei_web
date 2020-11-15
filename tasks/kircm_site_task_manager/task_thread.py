@@ -1,5 +1,6 @@
 import logging
 import random
+import threading
 import time
 
 from sqlalchemy.orm import session as orm_session
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 def task_thread(pars):
     db_session_maker = pars['db_session_maker']
     task_id = pars['task_id']
+    threading.current_thread().name = f"TaskThread_T{task_id}"
 
     # Open a new connection to DB
     logger.info(f"Opening DB session")
@@ -31,7 +33,7 @@ def task_thread(pars):
 
         running_task = pending_task  # just for clarity
         logger.info(f"Working on: {task_id} - {running_task} .................")
-        time.sleep(random.randrange(300, 5000))
+        time.sleep(random.randrange(30, 600))
 
         logger.info(f"FINISHED task: {task_id} - {running_task}")
         running_task.set_status_to(db_sess, TaskStatus.FINISHED)

@@ -1,6 +1,7 @@
 import logging
 import time
 from concurrent.futures.thread import ThreadPoolExecutor
+from random import randrange
 
 from sqlalchemy.orm import session as orm_session
 
@@ -99,4 +100,5 @@ def pick_created(db_session_maker, db_sess, executor, monitor):
         logger.info(f"Submitted task with id {task_created.id} to task thread")
         monitor.add_future(task_created, future)
         logger.info(f"Added task future with task id: {task_created.id} to task thread monitor")
-        # time.sleep(random.randrange(4, 8))
+        # Simulating an arbitrary delay for testing
+        time.sleep(randrange(4, 8))
