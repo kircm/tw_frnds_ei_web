@@ -37,6 +37,7 @@ class TaskMonitor:
 
         return wrapper
 
+    # noinspection PyArgumentList
     @locks_task_futures_collection
     def exists_task_for_key(self, task):
         # key = task.tw_user_id
@@ -47,6 +48,7 @@ class TaskMonitor:
             logger.warning(f"Task for key: {key} already existing in task monitor!")
         return exists
 
+    # noinspection PyArgumentList
     @locks_task_futures_collection
     def add_future(self, task, future):
         # key = task.tw_user_id
@@ -55,6 +57,7 @@ class TaskMonitor:
         logger.info(f"Adding future for task with key: {key}")
         self.__TASK_FUTURES[key] = future
 
+    # noinspection PyArgumentList
     @locks_task_futures_collection
     def all_finished(self):
         logger.debug("All futures finished?")
@@ -62,6 +65,7 @@ class TaskMonitor:
         logger.debug(f"Returning num_futures: {num_futures}")
         return num_futures
 
+    # noinspection PyArgumentList
     @locks_task_futures_collection
     def num_unfinished(self):
         logger.debug("num unfinished?")
@@ -69,6 +73,7 @@ class TaskMonitor:
         logger.debug(f"Returning num unfinished: {num_unfinished}")
         return num_unfinished
 
+    # noinspection PyArgumentList
     @locks_task_futures_collection
     def __remove_finished_futures(self):
         # we need to lock access to the dict holding all
