@@ -12,7 +12,7 @@ from .task_thread import task_thread
 
 logger = logging.getLogger(__name__)
 
-MAX_WORKERS = 7
+MAX_WORKERS = 20
 WAIT_SECS = 10
 
 
