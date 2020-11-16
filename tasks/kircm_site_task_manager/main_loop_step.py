@@ -53,11 +53,11 @@ def run_main_loop_step(db_session_maker):
                 num_tasks_created_or_pending = TfeiTask.count_crated_or_pending(db_sess)
                 logger.info("Picked potentially existing CREATED task. We have now this number of CREATED/PENDING "
                             f"tasks in DB: {num_tasks_created_or_pending}")
-                logger.info("Breathing...")
+                logger.debug("Breathing...")
                 time.sleep(WAIT_SECS)
 
             logger.info("There seems to be no more tasks to pick from DB")
-            logger.info("Giving a break to the task futures monitor...")
+            logger.debug("Giving a break to the task futures monitor...")
             # No immediate tasks to pick (or is there??) - taking a break anyway
             time.sleep(WAIT_SECS)
 
@@ -92,7 +92,7 @@ def pick_created(db_session_maker, db_sess, executor, monitor):
         task_created.set_status_to(db_sess, TaskStatus.PENDING)
         logger.info(f"Set CREATED task to PENDING status: {task_created}")
 
-        logger.info(f"Submitting task with id {task_created.id} to task thread...")
+        logger.debug(f"Submitting task with id {task_created.id} to task thread...")
         pars = {'db_session_maker': db_session_maker, 'task_id': task_created.id}
         future = executor.submit(task_thread, pars)
         logger.info(f"Submitted task with id {task_created.id} to task thread")
