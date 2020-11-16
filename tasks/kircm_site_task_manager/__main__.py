@@ -60,7 +60,7 @@ class Main:
         engine = create_engine(f"mysql://kircm:{MYSQL_DB_PASSWORD}@{MYSQL_DB_HOST}/kircm$kircm_db",
                                encoding='utf8',
                                echo=False,
-                               pool_size=6,  # we are limited by the MySQL configuration in PROD max_user_connections: 6
+                               pool_size=4,  # we are limited by the MySQL configuration in PROD max_user_connections
                                max_overflow=0,
                                pool_recycle=280  # this is needed to avoid losing
                                                  # idle DB connections
