@@ -35,7 +35,7 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.task_type} - {self.tw_user} - {self.task_status} - updated-at: {self.updated_at}"
+        return f"{self.id} - {self.tw_user} - {self.task_type} - {self.task_status} - updated-at: {self.updated_at}"
 
     @classmethod
     def create_from_tw_context(cls, task_type, tw):
