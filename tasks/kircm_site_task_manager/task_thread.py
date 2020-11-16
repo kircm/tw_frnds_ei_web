@@ -87,8 +87,8 @@ def task_thread(pars):
 
         logger.info(f"Working on: {task_id} - {running_task} .................")
         start = int(time.time())
-        time_to_finish = start + random.randrange(300, 5000)
-        hit_db_every = 30
+        time_to_finish = start + random.randrange(30, 1000)
+        hit_db_every = 10
 
         condition = start < time_to_finish
         while condition:
