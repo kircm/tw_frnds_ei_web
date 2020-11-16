@@ -60,7 +60,7 @@ class TaskMonitor:
         logger.info(f"Initial unfinished task futures: {unfinished}")
 
         while unfinished:
-            logger.info(f"while unfinished loop: {unfinished} tasks")
+            logger.info(f"Current unfinished task futures: {unfinished}")
 
             # we need to lock access to the dict holding all
             # futures for tasks while we do a pass to
@@ -68,7 +68,7 @@ class TaskMonitor:
             self.__TASK_FUTURES_LOCK.acquire()
             unfinished = self.__remove_finished_futures()
             self.__TASK_FUTURES_LOCK.release()
-            logger.info(f"After sweeping current task futures we have now {unfinished}")
+            logger.debug(f"After sweeping current task futures we have now {unfinished}")
 
             # we've looped through the task futures and removed the ones that were finished
             # we want to have breathing time, no point in checking for task futures immediately

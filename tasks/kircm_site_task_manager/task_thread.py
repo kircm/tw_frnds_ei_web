@@ -26,7 +26,7 @@ def task_thread(pars):
         logger.info(f"Retrieved PENDING task: {task_id} - {pending_task}")
 
         # purposedly delaying setting to RUNNING status for preliminary testing for now
-        time.sleep(random.randrange(2, 8))
+        time.sleep(random.randrange(8, 20))
 
         pending_task.set_status_to(db_sess, TaskStatus.RUNNING)
         logger.info(f"Set task to RUNNING status: {task_id} - {pending_task}")
@@ -47,7 +47,7 @@ def task_thread(pars):
                         f"and type {my_task.task_type}... Still {time_to_finish - now} secs to go")
             condition = now < time_to_finish
 
-        logger.info(f"FINISHED task: {task_id} - {running_task}")
+        logger.info(f"FINISHED task: {task_id}")
         running_task.set_status_to(db_sess, TaskStatus.FINISHED)
         logger.info(f"Set task to FINISHED status: {task_id} - {running_task}")
 

@@ -39,7 +39,7 @@ class TfeiTask(Base):
     tw_user = relationship("TfeiTwUser", back_populates="tfei_tasks")
 
     def __str__(self):
-        return f"{self.task_type} - {self.tw_user} - {self.task_status} - updated-at: {self.updated_at}"
+        return f"{self.id} - {self.tw_user} - {self.task_type} - {self.task_status} - updated-at: {self.updated_at}"
 
     def set_status_to(self, db_session, task_status):
         self.task_status = task_status.name

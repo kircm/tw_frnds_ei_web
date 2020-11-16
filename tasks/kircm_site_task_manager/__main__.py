@@ -35,7 +35,7 @@ class Main:
                 run_main_loop_step(self.session_maker)
 
                 logger.info("MAIN loop step has been run. Did we do any work?")
-                logger.info("Sleeping...")
+                logger.debug("Sleeping...")
                 time.sleep(WAIT)
 
                 # check for timeout

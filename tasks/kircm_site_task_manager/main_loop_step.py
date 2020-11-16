@@ -1,7 +1,6 @@
 import logging
 import time
 from concurrent.futures.thread import ThreadPoolExecutor
-from random import randrange
 
 from sqlalchemy.orm import session as orm_session
 
@@ -13,7 +12,7 @@ from .task_thread import task_thread
 
 logger = logging.getLogger(__name__)
 
-MAX_WORKERS = 10
+MAX_WORKERS = 20
 WAIT_SECS = 10
 
 
@@ -42,7 +41,7 @@ def run_main_loop_step(db_session_maker):
             logger.info("Monitor future is alive and we have this number of CREATED/PENDING tasks in "
                         f"DB: {num_tasks_created_or_pending}")
 
-            while num_tasks_created_or_pending > 0:
+            while num_tasks_created_or_pending:
                 # We need to keep looping if any task is in CREATED or PENDING status
                 # We need to keep monitor ALIVE and it may be the case that a task
                 # has been set to PENDING in DB but hasn't been added to the monitor yet
@@ -51,8 +50,6 @@ def run_main_loop_step(db_session_maker):
                 logger.info("Picking potentially existing CREATED task")
                 pick_created(db_session_maker, db_sess, executor, task_monitor)
 
-                # TODO - There is some issue with num tasks not reflecting current
-                # commited status on DB
                 num_tasks_created_or_pending = TfeiTask.count_crated_or_pending(db_sess)
                 logger.info("Picked potentially existing CREATED task. We have now this number of CREATED/PENDING "
                             f"tasks in DB: {num_tasks_created_or_pending}")
@@ -72,7 +69,8 @@ def run_main_loop_step(db_session_maker):
         logger.info("Leaving MAIN loop step. We are done for now. Releasing DB Session.")
 
     except ExistingTaskForUser:
-        logger.error("EXCEPTION EXISTING TASK FOR USER")
+        # for now we accept that situation
+        logger.warning("EXCEPTION EXISTING TASK FOR USER")
 
     finally:
         # Unconditionally close all DB connections
@@ -100,5 +98,3 @@ def pick_created(db_session_maker, db_sess, executor, monitor):
         logger.info(f"Submitted task with id {task_created.id} to task thread")
         monitor.add_future(task_created, future)
         logger.info(f"Added task future with task id: {task_created.id} to task thread monitor")
-        # Simulating an arbitrary delay for testing
-        time.sleep(randrange(4, 8))
