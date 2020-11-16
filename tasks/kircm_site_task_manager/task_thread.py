@@ -47,7 +47,7 @@ def pick_pending_set_running(task_id, **kwargs):
     logger.info(f"Retrieved PENDING task: {task_id} - {pending_task}")
 
     # purposedly delaying setting to RUNNING status for preliminary testing for now
-    time.sleep(random.randrange(8, 20))
+    # time.sleep(random.randrange(8, 20))
 
     pending_task.set_status_to(db_sess, TaskStatus.RUNNING)
     logger.info(f"Set task to RUNNING status: {task_id} - {pending_task}")
@@ -87,7 +87,7 @@ def task_thread(pars):
 
         logger.info(f"Working on: {task_id} - {running_task} .................")
         start = int(time.time())
-        time_to_finish = start + random.randrange(30, 1000)
+        time_to_finish = start + random.randrange(300, 3000)
         hit_db_every = 10
 
         condition = start < time_to_finish
