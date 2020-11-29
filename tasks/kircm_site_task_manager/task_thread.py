@@ -74,7 +74,7 @@ def retrieve_running_set_finished(task_id, **kwargs):
     logger.info(f"Set task to FINISHED status: {task_id} - {running_task}")
 
 
-def task_thread(pars):
+def task_thread_fn(pars):
     db_session_maker = pars['db_session_maker']
     task_id = pars['task_id']
     # Set thread name for logging - debugging

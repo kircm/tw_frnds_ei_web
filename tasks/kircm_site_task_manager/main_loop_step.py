@@ -6,7 +6,7 @@ from sqlalchemy.orm import session as orm_session
 from .models import TaskStatus
 from .models import TfeiTask
 from .task_monitor import ExistingTaskForUser
-from .task_thread import task_thread
+from .task_thread import task_thread_fn
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def run_main_loop_step(db_session_maker, task_executor, task_monitor):
             logger.info("Created task futures monitor")
             logger.info("Picking FIRST task for the new monitor...")
             pick_created(db_session_maker, db_sess, task_executor, task_monitor)
-            f_monitor = task_executor.submit(task_monitor.monitor)
+            f_monitor = task_executor.submit(task_monitor.monitor_fn)
             logger.info("FIRST task picked and monitor is now running")
 
         while f_monitor:
@@ -90,9 +90,9 @@ def pick_created(db_session_maker, db_sess, executor, monitor):
 
 
 def submit_pending_task(db_session_maker, executor, monitor, task_pending):
-    logger.debug(f"Submitting task with id {task_pending.id} to task thread...")
+    logger.debug(f"Submitting task with id {task_pending.id} to task executor...")
     pars = {'db_session_maker': db_session_maker, 'task_id': task_pending.id}
-    future = executor.submit(task_thread, pars)
-    logger.info(f"Submitted task with id {task_pending.id} to task thread")
+    future = executor.submit(task_thread_fn, pars)
+    logger.info(f"Submitted task with id {task_pending.id} to new task thread")
     monitor.add_future(task_pending, future)
     logger.info(f"Added task future with task id: {task_pending.id} to task thread monitor")

@@ -90,7 +90,7 @@ class TaskMonitor:
             f_item = next(futures_to_check, None)
         return len(self.__TASK_FUTURES)
 
-    def monitor(self):
+    def monitor_fn(self):
         threading.current_thread().name = "TaskMonitor"
         logger.info(f"Starting monitoring on futures: {self.__TASK_FUTURES}")
         unfinished = self.num_unfinished()
