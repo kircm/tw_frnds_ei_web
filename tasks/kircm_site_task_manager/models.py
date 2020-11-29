@@ -43,7 +43,15 @@ class TfeiTask(Base):
 
     def set_status_to(self, db_session, task_status):
         self.task_status = task_status.name
-        self.updated_at = datetime.now()
+        now = datetime.now()
+        self.updated_at = now
+        if task_status.name == TaskStatus.PENDING.name:
+            self.pending_at = now
+        elif task_status.name == TaskStatus.RUNNING.name:
+            self.running_at = now
+        elif task_status.name == TaskStatus.FINISHED.name:
+            self.finished_at = now
+
         db_session.commit()
 
     # TODO: Move fetching of tasks to custom model manager?
@@ -63,6 +71,10 @@ class TfeiTask(Base):
         return TfeiTask.task_status == TaskStatus.PENDING.name
 
     @staticmethod
+    def running():
+        return TfeiTask.task_status == TaskStatus.RUNNING.name
+
+    @staticmethod
     def get_created(db_session):
         created = db_session.query(TfeiTask).filter(TfeiTask.created())
         db_session.commit()
@@ -75,20 +87,43 @@ class TfeiTask(Base):
         return pending
 
     @staticmethod
-    def count_crated(db_session):
+    def get_running(db_session):
+        running = db_session.query(TfeiTask).filter(TfeiTask.running())
+        db_session.commit()
+        return running
+
+    @staticmethod
+    def count_with_filter(db_session, filter_fun):
         count = db_session.query(func.count(TfeiTask.id)) \
-            .filter(TfeiTask.task_status == TaskStatus.CREATED.name) \
+            .filter(filter_fun) \
             .scalar()
         db_session.commit()
         return count
 
     @staticmethod
+    def count_crated(db_session):
+        filter_f = TfeiTask.task_status == TaskStatus.CREATED.name
+        return TfeiTask.count_with_filter(db_session, filter_f)
+
+    @staticmethod
+    def count_pending(db_session):
+        filter_f = TfeiTask.task_status == TaskStatus.PENDING.name
+        return TfeiTask.count_with_filter(db_session, filter_f)
+
+    @staticmethod
     def count_crated_or_pending(db_session):
-        count = db_session.query(func.count(TfeiTask.id)) \
-            .filter(TfeiTask.task_status.in_([TaskStatus.CREATED.name, TaskStatus.PENDING.name])) \
-            .scalar()
-        db_session.commit()
-        return count
+        filter_f = TfeiTask.task_status.in_([TaskStatus.CREATED.name, TaskStatus.PENDING.name])
+        return TfeiTask.count_with_filter(db_session, filter_f)
+
+    @staticmethod
+    def count_running(db_session):
+        filter_f = TfeiTask.task_status == TaskStatus.RUNNING.name
+        return TfeiTask.count_with_filter(db_session, filter_f)
+
+    @staticmethod
+    def count_incomplete(db_session):
+        filter_f = TfeiTask.task_status.in_([TaskStatus.PENDING.name, TaskStatus.RUNNING.name])
+        return TfeiTask.count_with_filter(db_session, filter_f)
 
 
 class TfeiTwUser(Base):
