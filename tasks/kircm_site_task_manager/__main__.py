@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from .config_env import MYSQL_DB_HOST
 from .config_env import MYSQL_DB_PASSWORD
 from .config_log import LOG_LEVEL
+from .find_module_tw_frnds_ei import import_module_tw_frnds_ei
 from .incomplete_tasks import handle_incomplete_tasks
 from .main_loop_step import run_main_loop_step
 from .task_monitor import TaskMonitor
@@ -88,4 +89,6 @@ class Main:
 
 
 if __name__.endswith("__main__"):
+    import_module_tw_frnds_ei()
+    logger.info("Found and imported module 'tw_frnds_ei' for twitter api related tasks")
     Main().main()
