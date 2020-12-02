@@ -31,6 +31,7 @@ class TfeiTask(Base):
     running_at = Column(DateTime)
     finished_at = Column(DateTime)
     finished_ok = Column(Boolean)
+    finished_output = Column(Text)
     finished_details = Column(Text)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
@@ -53,8 +54,6 @@ class TfeiTask(Base):
             self.finished_at = now
 
         db_session.commit()
-
-    # TODO: Move fetching of tasks to custom model manager?
 
     @staticmethod
     def get_by_id(db_sess, task_id):

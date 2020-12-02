@@ -29,6 +29,7 @@ class Task(models.Model):
     finished_at = models.DateTimeField(blank=True, null=True)
 
     finished_ok = models.BooleanField(null=True)
+    finished_output = models.TextField(blank=True)
     finished_details = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
