@@ -2,6 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 from .config_env import DEBUG
+from .config_env import ROTATING_LOG
 
 
 class StripPackageFormatter(logging.Formatter):
@@ -27,7 +28,7 @@ LOG_LEVEL = logging.DEBUG if DEBUG else logging.INFO
 root_logger = logging.root
 root_logger.setLevel(LOG_LEVEL)
 
-file_handler = RotatingFileHandler(filename="log.log",
+file_handler = RotatingFileHandler(filename=ROTATING_LOG,
                                    mode="a",
                                    encoding="UTF-8",
                                    maxBytes=10485760,  # 10MB
