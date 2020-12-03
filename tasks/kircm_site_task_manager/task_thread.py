@@ -5,7 +5,10 @@ import time
 
 from sqlalchemy.orm import session as orm_session
 
+from .exporter_task import exporter_task
+from .importer_task import importer_task
 from .models import TaskStatus
+from .models import TaskType
 from .models import TfeiTask
 
 logger = logging.getLogger(__name__)
@@ -67,11 +70,37 @@ def refresh_task_with_id(task_id, **kwargs):
 
 
 @requires_db_conn_refresh
-def retrieve_running_set_finished(task_id, **kwargs):
+def retrieve_running_set_finished_info(task_id, ok, output, finished_details, **kwargs):
     db_sess = kwargs['db_sess']
     running_task = TfeiTask.get_by_id(db_sess, task_id)
+    running_task.set_finished_info_to(db_sess, ok, output, finished_details)
     running_task.set_status_to(db_sess, TaskStatus.FINISHED)
+    if ok:
+        logger.info("Task finished OK!")
+    else:
+        logger.warning(f"Task finished NOT OK. Details about error: {finished_details}")
+
     logger.info(f"Set task to FINISHED status: {task_id} - {running_task}")
+
+
+def do_task(task, **kwargs):
+    db_session_maker = kwargs['db_session_maker']
+    task_id = task.id
+    user_token = task.tw_user.tw_token
+    user_token_secret = task.tw_user.tw_token_sec
+
+    if task.task_type == TaskType.EXPORT.name:
+        ok, msg, file_name = exporter_task(user_token, user_token_secret)
+        retrieve_running_set_finished_info(task_id, ok, file_name, msg, db_session_maker=db_session_maker)
+
+    elif task.task_type == TaskType.IMPORT.name:
+        # TODO: Set file name to import in Django webapp
+        csv_file_name = "test_friends_ei_minimal.csv"
+        ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
+        retrieve_running_set_finished_info(task_id, ok, friendships_remaining, msg, db_session_maker=db_session_maker)
+
+    else:
+        raise NotImplementedError(f"Task type: {task.task_type} doesn't have an implementation")
 
 
 def task_thread_fn(pars):
@@ -82,27 +111,11 @@ def task_thread_fn(pars):
 
     try:
         logger.info(f"Picked up task: {task_id}")
-
         running_task = pick_pending_set_running(task_id, db_session_maker=db_session_maker)
 
-        logger.info(f"Working on: {task_id} - {running_task} .................")
-        start = int(time.time())
-        time_to_finish = start + random.randrange(30000, 300000)
-        hit_db_every = 10
-
-        condition = start < time_to_finish
-        while condition:
-            time.sleep(hit_db_every)
-            now = int(time.time())
-
-            task = refresh_task_with_id(task_id, time_to_finish=time_to_finish, db_session_maker=db_session_maker)
-            logger.debug(f"Refreshed task with id: {task.id}")
-
-            condition = now < time_to_finish
-
-        # we reached time to finish - The simulation for this task is finished
-        logger.info(f"FINISHED task: {task_id}")
-        retrieve_running_set_finished(task_id, db_session_maker=db_session_maker)
+        logger.info(f"Working on: {task_id} - {running_task} ...")
+        do_task(running_task, db_session_maker=db_session_maker)
+        logger.info(f"Done with: {task_id} - {running_task} ...")
 
     except Exception as e:
         logger.error(e)
