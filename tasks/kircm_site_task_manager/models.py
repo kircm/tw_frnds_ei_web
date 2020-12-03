@@ -55,6 +55,13 @@ class TfeiTask(Base):
 
         db_session.commit()
 
+    def set_finished_info_to(self, db_session, finished_ok, finished_output, finished_details):
+        self.finished_ok = finished_ok
+        self.finished_output = finished_output
+        self.finished_details = finished_details
+        self.updated_at = datetime.now()
+        db_session.commit()
+
     @staticmethod
     def get_by_id(db_sess, task_id):
         task = db_sess.query(TfeiTask).get(task_id)
