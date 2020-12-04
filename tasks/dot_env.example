@@ -5,3 +5,10 @@ MYSQL_DB_PASSWORD='my_mysql_db_password'
 TW_FRNDS_EI_APP_KEY='my_twitter_frnds_ei_app_key'
 TW_FRNDS_EI_APP_SECRET='my_twitter_frnds_ei_app_secret'
 ROTATING_LOG=/my/log/dir/file.name
+
+# -- tw_frnds_ei vars --
+APP_LOG_DIR=/my/log/dir
+APP_LOG_FILENAME=file_name.log
+LOG_LEVEL=DEBUG
+EXP_DATA_DIR=/my/data/export/path
+IMP_DATA_DIR=/my/data/import/path
