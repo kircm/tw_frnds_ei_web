@@ -90,13 +90,17 @@ def do_task(task, **kwargs):
     user_token_secret = task.tw_user.tw_token_sec
 
     if task.task_type == TaskType.EXPORT.name:
-        ok, msg, file_name = exporter_task(user_token, user_token_secret)
+        export_for_user = task.task_par_tw_id
+        if not export_for_user:
+            raise RuntimeError(f"SystemError: Export task {task_id} doesn't have the tw user to export "
+                               f"friends for configured!")
+        ok, msg, file_name = exporter_task(user_token, user_token_secret, export_for_user)
         retrieve_running_set_finished_info(task_id, ok, file_name, msg, db_session_maker=db_session_maker)
 
     elif task.task_type == TaskType.IMPORT.name:
         csv_file_name = task.task_par_f_name
         if not csv_file_name:
-            raise RuntimeError(f"Import task {task_id} doesn't have the file name to import configured! Fix the webapp")
+            raise RuntimeError(f"SystemError: Import task {task_id} doesn't have the file name to import configured!")
         ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
         retrieve_running_set_finished_info(task_id, ok, friendships_remaining, msg, db_session_maker=db_session_maker)
 
