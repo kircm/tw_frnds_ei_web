@@ -94,8 +94,9 @@ def do_task(task, **kwargs):
         retrieve_running_set_finished_info(task_id, ok, file_name, msg, db_session_maker=db_session_maker)
 
     elif task.task_type == TaskType.IMPORT.name:
-        # TODO: Set file name to import in Django webapp
-        csv_file_name = "test_friends_ei_minimal.csv"
+        csv_file_name = task.task_par_f_name
+        if not csv_file_name:
+            raise RuntimeError(f"Import task {task_id} doesn't have the file name to import configured! Fix the webapp")
         ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
         retrieve_running_set_finished_info(task_id, ok, friendships_remaining, msg, db_session_maker=db_session_maker)
 
@@ -119,6 +120,8 @@ def task_thread_fn(pars):
 
     except Exception as e:
         logger.error(e)
+        err_msg = f"Task thread for task {task_id} raised exception: {e}"
+        retrieve_running_set_finished_info(task_id, False, None, err_msg, db_session_maker=db_session_maker)
         raise e
 
     return 0

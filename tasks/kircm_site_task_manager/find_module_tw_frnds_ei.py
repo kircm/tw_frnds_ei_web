@@ -29,6 +29,7 @@ def import_module_tw_frnds_ei():
             import tw_frnds_ei.main_exporter as main_exporter
             # noinspection PyUnresolvedReferences
             import tw_frnds_ei.main_importer as main_importer
+            logger.info("Modules: of tw_frnds_ei application found and loaded")
 
         except ModuleNotFoundError as mnfe2:
             logger.error(f"Module not found: {mnfe2} - Couldn't find it in path: {p.absolute()}")
