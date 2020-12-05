@@ -1,0 +1,1 @@
+MAX_FRIENDS = 3000

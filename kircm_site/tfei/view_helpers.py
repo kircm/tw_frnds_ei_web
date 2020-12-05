@@ -2,6 +2,7 @@ from django.urls import reverse
 from twython import Twython
 from twython import TwythonError
 
+from .config_app import MAX_FRIENDS
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
 from .models import Task
@@ -22,10 +23,39 @@ class TwContextGetter:
         return self.get_context()['tw_context']
 
 
-def create_task_for_user(request, task_type, ok_view):
+def resolve_screen_name_for_export(request):
+    if 'tw_user_to_export' in request.POST:
+        screen_name_to_export = request.POST['tw_user_to_export']
+    else:
+        return False, None, "Missing value for 'tw_user_to_export'"
+
+    twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
+    try:
+        u = twitter.show_user(screen_name=screen_name_to_export)
+    except TwythonError as te:
+        return False, None, te.msg
+
+    user_id_to_export = u['id']
+    friends_count = u['friends_count']
+
+    if friends_count == 0:
+        return False, None, f"Profile {screen_name_to_export} doesn't have any friends to export"
+    elif friends_count > MAX_FRIENDS:
+        err_msg_for_user = f"Profile {screen_name_to_export} has {friends_count}, we support a maximum of {MAX_FRIENDS}"
+        return False, None, err_msg_for_user
+    else:
+        return True, user_id_to_export, None
+
+
+def resolve_file_name_for_import(request):
+    # TODO: Handle file uploaded by user
+    return True, "test_friends_ei_minimal.csv", None
+
+
+def create_task_for_user(request, task_type, ok_view, task_par_tw_id=None, task_par_f_name=None):
     tw_context = TwContextGetter(request).get_tw_context()
     try:
-        Task.create_from_tw_context(task_type, tw_context)
+        Task.create_from_tw_context(task_type, tw_context, task_par_tw_id, task_par_f_name)
     except Task.UserTaskExisting:
         msg = "There is already a non-finished task for this user"
         return redirect_to_error_view(request, msg)
@@ -107,7 +137,7 @@ def process_oauth_callback(request, oauth_token, oauth_verifier):
     request.session['tw_context'] = tw_context
     TwUser.create_or_update_from_tw_context(tw_context)
 
-    redirect_url = request.build_absolute_uri(reverse("main_menu"))
+    redirect_url = request.build_absolute_uri(reverse("auth_ok"))
     return redirect_url
 
 

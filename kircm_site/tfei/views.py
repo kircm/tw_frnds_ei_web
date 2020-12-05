@@ -8,10 +8,13 @@ from .view_helpers import authenticate_app
 from .view_helpers import create_task_for_user
 from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
+from .view_helpers import redirect_to_error_view
+from .view_helpers import resolve_file_name_for_import
+from .view_helpers import resolve_screen_name_for_export
 
 
-class MainMenuView(TemplateView):
-    template_name = "tfei/main-menu.html"
+class AuthOkView(TemplateView):
+    template_name = "tfei/auth-ok.html"
 
     @requires_auth
     def get(self, request, *args, **kwargs):
@@ -22,13 +25,32 @@ class MainMenuView(TemplateView):
         return {}
 
 
-class ExportView(RedirectView):
-    redirect_url = None
+class ExportView(TemplateView):
+    template_name = "tfei/export.html"
 
     @requires_auth
     def get(self, request, *args, **kwargs):
-        self.redirect_url = create_task_for_user(request, Task.TaskType.EXPORT.name, "export_ok")
         return super().get(request, *args, **kwargs)
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class ExportActionView(RedirectView):
+    redirect_url = None
+
+    @requires_auth
+    def post(self, request, *args, **kwargs):
+        ok, task_par_tw_id, err_msg_for_user = resolve_screen_name_for_export(request)
+        if ok:
+            self.redirect_url = create_task_for_user(request,
+                                                     Task.TaskType.EXPORT.name,
+                                                     "export_ok",
+                                                     task_par_tw_id=task_par_tw_id)
+        else:
+            self.redirect_url = redirect_to_error_view(request, err_msg_for_user)
+        return super().post(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         return self.redirect_url
@@ -42,13 +64,32 @@ class ExportOkView(TemplateView):
         return {}
 
 
-class ImportView(RedirectView):
-    redirect_url = None
+class ImportView(TemplateView):
+    template_name = "tfei/import.html"
 
     @requires_auth
     def get(self, request, *args, **kwargs):
-        self.redirect_url = create_task_for_user(request, Task.TaskType.IMPORT.name, "import_ok")
-        return super().get(self, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        return {}
+
+
+class ImportActionView(RedirectView):
+    redirect_url = None
+
+    @requires_auth
+    def post(self, request, *args, **kwargs):
+        ok, task_par_f_name, err_msg_for_user = resolve_file_name_for_import(request)
+        if ok:
+            self.redirect_url = create_task_for_user(request,
+                                                     Task.TaskType.IMPORT.name,
+                                                     "import_ok",
+                                                     task_par_f_name=task_par_f_name)
+        else:
+            self.redirect_url = redirect_to_error_view(request, err_msg_for_user)
+        return super().post(self, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
         return self.redirect_url

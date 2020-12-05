@@ -1,0 +1,25 @@
+{% extends "tfei/base-menu.html" %}
+{% block actioncontent %}
+<p class="text-center width-80 v-margin-20">
+    Enter <strong>screen name</strong> of the profile to export friends for.
+</p>
+<p class="text-center width-80 v-margin-20">
+    Or leave your screen name to export your friends.
+</p>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <form action="{% url 'export_action' %}" method="post" class="text-center width-80 v-margin-30">
+        {% csrf_token %}
+        <input type="text"
+               id="tw_user_to_export"
+               name="tw_user_to_export"
+               minlength="4"
+               maxlength="30"
+               size="30"
+               required
+               value="{{ tw_context.user_screen_name }}">
+        <br><br>
+        <input type="submit" value="Start Export" class="btn btn-success button-ok">
+    </form>
+{% endblock actioncontent %}

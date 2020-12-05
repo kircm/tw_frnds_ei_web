@@ -39,7 +39,7 @@ class Task(models.Model):
         return f"{self.id} - {self.tw_user} - {self.task_type} - {self.task_status} - updated-at: {self.updated_at}"
 
     @classmethod
-    def create_from_tw_context(cls, task_type, tw):
+    def create_from_tw_context(cls, task_type, tw, task_par_tw_id=None, task_par_f_name=None):
         u = TwUser.objects.get(pk=tw['user_id'])
 
         existing_not_finished = cls.objects.filter(tw_user=u).exclude(task_status__exact=cls.TaskStatus.FINISHED)
@@ -51,6 +51,8 @@ class Task(models.Model):
             tw_user=u,
             tw_screen_name_for_task=u.tw_screen_name,
             task_type=task_type,
+            task_par_tw_id=task_par_tw_id,
+            task_par_f_name=task_par_f_name,
             task_status=cls.TaskStatus.CREATED
         )
 
