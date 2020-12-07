@@ -33,9 +33,10 @@ def resolve_screen_name_for_export(request):
     try:
         u = twitter.show_user(screen_name=screen_name_to_export)
     except TwythonError as te:
-        return False, None, te.msg
+        msg = f"{screen_name_to_export}: {te.msg}"
+        return False, None, msg
 
-    user_id_to_export = u['id']
+    resolved_screen_name = u['screen_name']
     friends_count = u['friends_count']
 
     if friends_count == 0:
@@ -44,7 +45,7 @@ def resolve_screen_name_for_export(request):
         err_msg_for_user = f"Profile {screen_name_to_export} has {friends_count}, we support a maximum of {MAX_FRIENDS}"
         return False, None, err_msg_for_user
     else:
-        return True, user_id_to_export, None
+        return True, resolved_screen_name, None
 
 
 def resolve_file_name_for_import(request):
@@ -52,10 +53,10 @@ def resolve_file_name_for_import(request):
     return True, "test_friends_ei_minimal.csv", None
 
 
-def create_task_for_user(request, task_type, ok_view, task_par_tw_id=None, task_par_f_name=None):
+def create_task_for_user(request, task_type, ok_view, par_exp_screen_name=None, par_imp_file_name=None):
     tw_context = TwContextGetter(request).get_tw_context()
     try:
-        Task.create_from_tw_context(task_type, tw_context, task_par_tw_id, task_par_f_name)
+        Task.create_from_tw_context(task_type, tw_context, par_exp_screen_name, par_imp_file_name)
     except Task.UserTaskExisting:
         msg = "There is already a non-finished task for this user"
         return redirect_to_error_view(request, msg)

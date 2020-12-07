@@ -90,7 +90,7 @@ def do_task(task, **kwargs):
     user_token_secret = task.tw_user.tw_token_sec
 
     if task.task_type == TaskType.EXPORT.name:
-        export_for_user = task.task_par_tw_id
+        export_for_user = task.par_exp_screen_name
         if not export_for_user:
             raise RuntimeError(f"SystemError: Export task {task_id} doesn't have the tw user to export "
                                f"friends for configured!")

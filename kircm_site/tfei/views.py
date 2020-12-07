@@ -42,12 +42,12 @@ class ExportActionView(RedirectView):
 
     @requires_auth
     def post(self, request, *args, **kwargs):
-        ok, task_par_tw_id, err_msg_for_user = resolve_screen_name_for_export(request)
+        ok, task_par_screen_name, err_msg_for_user = resolve_screen_name_for_export(request)
         if ok:
             self.redirect_url = create_task_for_user(request,
                                                      Task.TaskType.EXPORT.name,
                                                      "export_ok",
-                                                     task_par_tw_id=task_par_tw_id)
+                                                     par_exp_screen_name=task_par_screen_name)
         else:
             self.redirect_url = redirect_to_error_view(request, err_msg_for_user)
         return super().post(request, *args, **kwargs)
