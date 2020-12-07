@@ -1,12 +1,14 @@
-{% extends "tfei/base.html" %}
-{% block containercontent %}
-<div class="center-text">
+{% extends "tfei/three-col-layout.html" %}
+{% block innercontainercontent %}
+<div class="ctr">
     <p>
         You've been logged out from this app.
     </p>
     <p>
         Your Twitter tokens for this app <b>are now invalid</b>.
     </p>
+</div>
+<div class="ctr">
     <p>
         However, Twitter still keeps your <b>authentication alive</b>.
     </p>
@@ -19,27 +21,25 @@
         </a>
     </p>
 </div>
-<div class="center-text v-margin-50">
+<div class="ctr v-margin-50">
     <p>
-        Also, once any running task is finished, unless you want to use this app again you should
-        <b>revoke access</b> for this app (FriendsEI_app) in your
+        Also, once any running task is finished, unless you want to use this app again<br/>
+        you should <b>revoke access</b> for this app (FriendsEI_app) in your
     </p>
-    <p>
-        Twitter
+    <p class="ctr">
         <a href="https://twitter.com/settings/connected_apps" target="_blank">
-            Connected Apps
+            Twitter Connected Apps
         </a>
-        <br>
+        <br/>
         <small>(requires Twitter login)</small>
     </p>
 </div>
 <div>
-    <p class="footer text-muted">
+    <p class="footer text-muted ctr">
         <small>
             Didn't mean to logout? Re-Authenticate:
             <a href="/tfei/">Home</a>
         </small>
     </p>
 </div>
-
-{% endblock containercontent %}
+{% endblock innercontainercontent %}

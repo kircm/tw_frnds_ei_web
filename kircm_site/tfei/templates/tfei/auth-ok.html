@@ -1,14 +1,13 @@
 {% extends "tfei/base-menu.html" %}
 {% block actioncontent %}
-            <p>Hello, {{ tw_context.user_name }}!</p>
-            <p>You've been authenticated into Twitter successfully.</p>
-            <p>
-                Your Twitter handle name is <b>{{ tw_context.user_screen_name }}</b>
-            </p>
-            <p>
-                You have {{ tw_context.user_friends_count }} friends (accounts you follow).
-            </p>
-            <p>
-                <<< You can export them using the actions menu
-            </p>
+<div>
+    <p>Hello, {{ tw_context.user_name }}!</p>
+    <p>You've been authenticated into Twitter successfully.</p>
+    <p>
+        Your Twitter handle name is <b>{{ tw_context.user_screen_name }}</b>
+    </p>
+    <p>
+        You have {{ tw_context.user_friends_count }} friends (accounts you follow).
+    </p>
+</div>
 {% endblock actioncontent %}
