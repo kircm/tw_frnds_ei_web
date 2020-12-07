@@ -68,9 +68,7 @@ class TaskMonitor:
     # noinspection PyArgumentList
     @locks_task_futures_collection
     def num_unfinished(self):
-        logger.debug("num unfinished?")
         num_unfinished = len(self.__TASK_FUTURES)
-        logger.debug(f"Returning num unfinished: {num_unfinished}")
         return num_unfinished
 
     # noinspection PyArgumentList
