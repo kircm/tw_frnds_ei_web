@@ -21,8 +21,8 @@ class Task(models.Model):
 
     task_type = models.CharField(max_length=20, choices=TaskType.choices)
     task_status = models.CharField(max_length=20, choices=TaskStatus.choices)
-    task_par_tw_id = models.BigIntegerField(blank=True, null=True)
-    task_par_f_name = models.CharField(max_length=100, blank=True, null=True)
+    par_exp_screen_name = models.CharField(max_length=30, blank=True, null=True)
+    par_imp_file_name = models.CharField(max_length=100, blank=True, null=True)
 
     pending_at = models.DateTimeField(blank=True, null=True)
     running_at = models.DateTimeField(blank=True, null=True)
