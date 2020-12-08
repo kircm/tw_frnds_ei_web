@@ -10,6 +10,7 @@ from .views import ImportActionView
 from .views import ImportOkView
 from .views import ImportView
 from .views import LogoutView
+from .views import MyTasksView
 from .views import TwAuthCallbackView
 from .views import TwAuthenticateRedirectView
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path('import', ImportView.as_view(), name='import'),
     path('import_action', ImportActionView.as_view(), name='import_action'),
     path('import_ok', ImportOkView.as_view(), name='import_ok'),
+    path('my_tasks', MyTasksView.as_view(), name='my_tasks'),
     path('logout', LogoutView.as_view(), name='logout'),
     path('error', ErrorView.as_view(), name='error_view'),
 ]

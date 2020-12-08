@@ -1,0 +1,16 @@
+{% extends "tfei/base-menu.html" %}
+{% block actioncontent %}
+
+<p>
+    {% if messages %}
+        {% for msg in messages %}
+            {{ msg }}<br/>
+        {% endfor %}
+    {% endif %}
+</p>
+<p>
+    {% if task_context %}
+        {{ task_context }}
+    {% endif %}
+</p>
+{% endblock actioncontent %}

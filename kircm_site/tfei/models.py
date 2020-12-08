@@ -56,6 +56,21 @@ class Task(models.Model):
             task_status=cls.TaskStatus.CREATED
         )
 
+    @classmethod
+    def retrieve_user_tasks_with_tw_context(cls, tw_context):
+        u = TwUser.objects.get(pk=tw_context['user_id'])
+        tasks_for_user = cls.objects.filter(tw_user=u)
+        fields = ('id',
+                  'tw_screen_name_for_task',
+                  'task_type',
+                  'task_status',
+                  'finished_ok',
+                  'finished_output',
+                  'finished_details',
+                  'finished_at')
+        task_list = list(tasks_for_user.values(*fields))
+        return task_list
+
 
 class TwUser(models.Model):
     tw_id = models.BigIntegerField(primary_key=True)

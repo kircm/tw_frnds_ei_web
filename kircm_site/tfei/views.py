@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 
@@ -11,6 +12,7 @@ from .view_helpers import process_tw_oauth_callback_request
 from .view_helpers import redirect_to_error_view
 from .view_helpers import resolve_file_name_for_import
 from .view_helpers import resolve_screen_name_for_export
+from .view_helpers import retrieve_tasks_for_user
 
 
 class AuthOkView(TemplateView):
@@ -103,6 +105,24 @@ class ImportOkView(TemplateView):
         return {}
 
 
+class MyTasksView(TemplateView):
+    template_name = "tfei/my-tasks.html"
+
+    @requires_auth
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        context = {}
+        task_data = retrieve_tasks_for_user(self.request)
+        if task_data:
+            context.update({'task_context': task_data})
+        else:
+            messages.warning(self.request, "There are no tasks")
+        return context
+
+
 class LogoutView(TemplateView):
     template_name = "tfei/logout.html"
 
@@ -116,10 +136,9 @@ class ErrorView(TemplateView):
 
     def get_context_data(self, **kwargs):
         if 'msg_context' in self.request.session:
-            context = {'msg_context': self.request.session['msg_context']}
+            return {'msg_context': self.request.session['msg_context']}
         else:
-            context = {'msg_context': {'error_message': "Unknown Error! Please logout and re-authenticate"}}
-        return context
+            return {'msg_context': {'error_message': "Unknown Error! Please logout and re-authenticate"}}
 
 
 class TwAuthenticateRedirectView(RedirectView):
