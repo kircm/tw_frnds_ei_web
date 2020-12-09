@@ -67,7 +67,10 @@ class Task(models.Model):
                   'finished_ok',
                   'finished_output',
                   'finished_details',
-                  'finished_at')
+                  'created_at',
+                  'finished_at',
+                  'finished_output',
+                  'finished_details')
         task_list = list(tasks_for_user.values(*fields))
         return task_list
 

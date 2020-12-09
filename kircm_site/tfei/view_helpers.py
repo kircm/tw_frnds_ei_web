@@ -66,11 +66,6 @@ def create_task_for_user(request, task_type, ok_view, par_exp_screen_name=None, 
 def retrieve_tasks_for_user(request):
     tw_context = TwContextGetter(request).get_tw_context()
     tasks_for_user = Task.retrieve_user_tasks_with_tw_context(tw_context)
-    # Make datetime objects serializable
-    for t in tasks_for_user:
-        if t['finished_at']:
-            t.update({'finished_at': t['finished_at'].isoformat()})
-
     return tasks_for_user
 
 

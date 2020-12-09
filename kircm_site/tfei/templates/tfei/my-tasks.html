@@ -1,5 +1,6 @@
 {% extends "tfei/base-menu.html" %}
 {% block actioncontent %}
+{% load tz %}
 
 <p>
     {% if messages %}
@@ -10,7 +11,64 @@
 </p>
 <p>
     {% if task_context %}
-        {{ task_context }}
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Finished OK?</th>
+              <th scope="col">Created at</th>
+              <th scope="col">Finished at</th>
+              <th scope="col">Logs</th>
+              <th scope="col">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in task_context %}
+            <tr>
+              <th scope="row">{{ task.id }}</th>
+              <td>{{ task.task_type|title }}</td>
+              <td>{{ task.task_status|title }}</td>
+              <td>{% if task.finished_ok %}
+                    Yes
+                  {% elif task.finished_ok == None %}
+                    Not Yet
+                  {% else %}
+                    No!
+                  {% endif %}
+              </td>
+              <td>{% if task.created_at %}
+                  <small>
+                    {{ task.created_at | localtime | date:"Y-m-d" }}
+                      <br/>
+                    {{ task.created_at | localtime | time:"H:i e" }}
+                  </small>
+                  {% endif %}
+              </td>
+              <td>{% if task.finished_at %}
+                  <small>
+                    {{ task.finished_at | localtime | date:"Y-m-d" }}
+                      <br/>
+                    {{ task.finished_at | localtime | time:"H:i e" }}
+                  </small>
+                  {% endif %}
+              </td>
+              <td>
+                  <a href="#">logs</a>
+              </td>
+              <td>{% if task.finished_ok %}
+                    {{ task.finished_output }}
+                  {% elif task.finished_ok == None %}
+                    <a href="#">Not Yet</a>
+                  {% else %}
+                    {{ task.finished_details }}
+                  {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
     {% endif %}
 </p>
 {% endblock actioncontent %}
