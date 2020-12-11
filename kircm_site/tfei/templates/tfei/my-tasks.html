@@ -2,20 +2,25 @@
 {% block actioncontent %}
 {% load tz %}
 
-<p>
-    {% if messages %}
-        {% for msg in messages %}
-            {{ msg }}<br/>
-        {% endfor %}
-    {% endif %}
+{% if messages %}
+  <p>
+    {% for msg in messages %}
+      {{ msg }}<br/>
+    {% endfor %}
+  </p>
+{% endif %}
+
+<p class="text-secondary">
+  Tasks for {{ tw_context.user_screen_name }}
 </p>
 <p>
     {% if task_context %}
-        <table class="table">
+        <table class="table small">
           <thead>
             <tr>
               <th scope="col">Id</th>
               <th scope="col">Type</th>
+              <th scope="col">Data for</th>
               <th scope="col">Status</th>
               <th scope="col">Finished OK?</th>
               <th scope="col">Created at</th>
@@ -29,6 +34,14 @@
             <tr>
               <th scope="row">{{ task.id }}</th>
               <td>{{ task.task_type|title }}</td>
+              <td>
+                {% if task.task_type == "EXPORT" %}
+                  {{ task.par_exp_screen_name|truncatechars:15 }}
+                {% endif %}
+                {% if task.task_type == "IMPORT" %}
+                  {{ task.tw_screen_name_for_task|truncatechars:15 }}
+                {% endif %}
+              </td>
               <td>{{ task.task_status|title }}</td>
               <td>{% if task.finished_ok %}
                     Yes
@@ -39,19 +52,15 @@
                   {% endif %}
               </td>
               <td>{% if task.created_at %}
-                  <small>
                     {{ task.created_at | localtime | date:"Y-m-d" }}
                       <br/>
                     {{ task.created_at | localtime | time:"H:i e" }}
-                  </small>
                   {% endif %}
               </td>
               <td>{% if task.finished_at %}
-                  <small>
                     {{ task.finished_at | localtime | date:"Y-m-d" }}
                       <br/>
                     {{ task.finished_at | localtime | time:"H:i e" }}
-                  </small>
                   {% endif %}
               </td>
               <td>

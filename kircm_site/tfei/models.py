@@ -59,11 +59,12 @@ class Task(models.Model):
     @classmethod
     def retrieve_user_tasks_with_tw_context(cls, tw_context):
         u = TwUser.objects.get(pk=tw_context['user_id'])
-        tasks_for_user = cls.objects.filter(tw_user=u)
+        tasks_for_user = cls.objects.filter(tw_user=u).order_by('-created_at')
         fields = ('id',
                   'tw_screen_name_for_task',
                   'task_type',
                   'task_status',
+                  'par_exp_screen_name',
                   'finished_ok',
                   'finished_output',
                   'finished_details',

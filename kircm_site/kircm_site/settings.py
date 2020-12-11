@@ -141,3 +141,7 @@ STATIC_ROOT = env('STATIC_ROOT')
 
 # Can be overridden in a local env
 D_AUTH = {}
+
+# Export/Import data dirs
+EXP_DATA_DIR = env('EXP_DATA_DIR')
+IMP_DATA_DIR = env('IMP_DATA_DIR')
