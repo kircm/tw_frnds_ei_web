@@ -1,3 +1,7 @@
+import re
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from django.urls import reverse
 from twython import Twython
 from twython import TwythonError
@@ -67,6 +71,24 @@ def retrieve_tasks_for_user(request):
     tw_context = TwContextGetter(request).get_tw_context()
     tasks_for_user = Task.retrieve_user_tasks_with_tw_context(tw_context)
     return tasks_for_user
+
+
+def retrieve_task(task_id, user_id):
+    try:
+        task = Task.objects.get(pk=task_id)
+    except ObjectDoesNotExist:
+        raise Http404("Task does not exist!")
+
+    # Important - check that the task belongs to current user
+    if task.tw_user.tw_id != user_id:
+        raise Http404("Task does not exist!")
+
+    return task
+
+
+def validate_user_file_path(user_screen_name, path_file):
+    p = re.compile(f".*/{user_screen_name}/.*")
+    return p.match(path_file)
 
 
 def authenticate_app(request):

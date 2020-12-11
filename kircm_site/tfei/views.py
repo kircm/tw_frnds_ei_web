@@ -1,10 +1,19 @@
+import os
+from os.path import exists
+from os.path import isfile
+from pathlib import Path
+
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
+from django.views.generic.base import View
 
 from .models import Task
 from .view_decorators import requires_auth
 from .view_decorators import requires_tw_context
+from .view_helpers import TwContextGetter
 from .view_helpers import authenticate_app
 from .view_helpers import create_task_for_user
 from .view_helpers import logout_user
@@ -12,7 +21,9 @@ from .view_helpers import process_tw_oauth_callback_request
 from .view_helpers import redirect_to_error_view
 from .view_helpers import resolve_file_name_for_import
 from .view_helpers import resolve_screen_name_for_export
+from .view_helpers import retrieve_task
 from .view_helpers import retrieve_tasks_for_user
+from .view_helpers import validate_user_file_path
 
 
 class AuthOkView(TemplateView):
@@ -121,6 +132,26 @@ class MyTasksView(TemplateView):
         else:
             messages.warning(self.request, "There are no tasks")
         return context
+
+
+class DownloadView(View):
+    @requires_auth
+    def get(self, request, *args, **kwargs):
+        tw_context = TwContextGetter(request).get_tw_context()
+        user_screen_name = tw_context['user_screen_name']
+        user_id = tw_context['user_id']
+        task_id = kwargs['task_id']
+        task = retrieve_task(task_id, user_id)
+
+        path_file = Path(task.finished_output)
+        if exists(path_file) and isfile(path_file) \
+                and validate_user_file_path(user_screen_name, str(path_file.absolute())):
+            with open(path_file, 'r') as f:
+                resp = HttpResponse(f.read(), content_type="text/csv")
+                resp['Content-Disposition'] = f"attachment;filename={os.path.basename(path_file)}"
+                return resp
+        else:
+            raise ObjectDoesNotExist()
 
 
 class LogoutView(TemplateView):

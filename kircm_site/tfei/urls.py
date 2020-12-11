@@ -2,6 +2,7 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from .views import AuthOkView
+from .views import DownloadView
 from .views import ErrorView
 from .views import ExportActionView
 from .views import ExportOkView
@@ -27,6 +28,7 @@ urlpatterns = [
     path('import_action', ImportActionView.as_view(), name='import_action'),
     path('import_ok', ImportOkView.as_view(), name='import_ok'),
     path('my_tasks', MyTasksView.as_view(), name='my_tasks'),
+    path('download/<int:task_id>/', DownloadView.as_view(), name='download'),
     path('logout', LogoutView.as_view(), name='logout'),
     path('error', ErrorView.as_view(), name='error_view'),
 ]

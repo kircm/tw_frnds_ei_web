@@ -58,11 +58,16 @@
                   <a href="#">logs</a>
               </td>
               <td>{% if task.finished_ok %}
-                    {{ task.finished_output }}
+                    {% if task.task_type == "EXPORT" %}
+                      <a href="{% url 'download' task.id %}">Download</a>
+                    {% endif %}
+                    {% if task.task_type == "IMPORT" %}
+                      NOT IMPL
+                    {% endif %}
                   {% elif task.finished_ok == None %}
-                    <a href="#">Not Yet</a>
+                    Not Yet
                   {% else %}
-                    {{ task.finished_details }}
+                    LINK TO DETAILS
                   {% endif %}
               </td>
             </tr>
