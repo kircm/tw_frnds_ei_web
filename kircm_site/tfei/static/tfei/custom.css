@@ -92,7 +92,7 @@
 .input-text {
   height: calc(2.25rem + 2px);
   padding: .375rem .75rem;
-  border: 1px solid #ced4da;
+  border: 2px solid #ced4da;
   border-radius: .25rem;
 }
 

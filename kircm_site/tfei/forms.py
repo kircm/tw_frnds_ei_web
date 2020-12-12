@@ -12,7 +12,9 @@ class ExportScreenNameForm(forms.Form):
         required=True,
         min_length=4,
         max_length=15,
-        label='')
+        label='',
+        widget=forms.TextInput(attrs={'class': 'input-text'})
+    )
 
     def clean(self):
         cleaned_data = super().clean()
