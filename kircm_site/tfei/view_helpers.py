@@ -46,8 +46,13 @@ def resolve_twitter_error(te):
         return te.msg
 
 
-def resolve_screen_name_for_export(screen_name_to_export):
-    twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
+def resolve_screen_name_for_export(tw_context, screen_name_to_export):
+    oauth_token = tw_context['oauth_final_token']
+    oauth_token_secret = tw_context['oauth_final_token_secret']
+    twitter = Twython(app_key=APP_KEY,
+                      app_secret=APP_SECRET,
+                      oauth_token=oauth_token,
+                      oauth_token_secret=oauth_token_secret)
     try:
         u = twitter.show_user(screen_name=screen_name_to_export)
         # test actual access to the list of friends of the user to export data for

@@ -56,10 +56,12 @@ class ExportView(View):
 
     @requires_auth
     def post(self, request, *args, **kwargs):
+        tw_context = TwContextGetter(request).get_tw_context()
         form = ExportScreenNameForm(request.POST)
         if form.is_valid():
             screen_name_to_export = form.cleaned_data['tw_user_to_export']
-            ok, task_par_screen_name, err_msg_for_user = resolve_screen_name_for_export(screen_name_to_export)
+            ok, task_par_screen_name, err_msg_for_user = resolve_screen_name_for_export(tw_context,
+                                                                                        screen_name_to_export)
             if ok:
                 redirect_url = create_task_for_user(request,
                                                     Task.TaskType.EXPORT.name,
