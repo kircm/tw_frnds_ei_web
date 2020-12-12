@@ -95,3 +95,9 @@
   border: 1px solid #ced4da;
   border-radius: .25rem;
 }
+
+.errorlist {
+  list-style-type: none;
+  margin-left: -2rem;
+  color: red;
+}

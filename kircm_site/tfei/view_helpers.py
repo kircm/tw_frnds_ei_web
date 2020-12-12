@@ -27,17 +27,39 @@ class TwContextGetter:
         return self.get_context()['tw_context']
 
 
-def resolve_screen_name_for_export(request):
-    if 'tw_user_to_export' in request.POST:
-        screen_name_to_export = request.POST['tw_user_to_export']
-    else:
-        return False, None, "Missing value for 'tw_user_to_export'"
+def task_for_user_exists(user_id):
+    existing_not_finished = Task.get_existing_not_finished_for_user(user_id)
+    if existing_not_finished:
+        task_id = existing_not_finished.first().id
+        msg = f"You have a task that's not finished yet: {task_id}. Please wait for it to finish"
+        msg_context = {'error_message': msg}
+        return True, msg_context
+    return False, None
 
+
+def resolve_twitter_error(te):
+    if te.error_code == 404:
+        return "User not found"
+    elif te.error_code == 401:
+        return "You are not authorized to access this profile. You may be blocked or the account is protected"
+    else:
+        return te.msg
+
+
+def resolve_screen_name_for_export(screen_name_to_export):
     twitter = Twython(app_key=APP_KEY, app_secret=APP_SECRET)
     try:
         u = twitter.show_user(screen_name=screen_name_to_export)
+        # test actual access to the list of friends of the user to export data for
+        twitter.get_friends_list(
+            screen_name=screen_name_to_export,
+            skip_status=True,
+            include_user_entities=False,
+            count=5)
+
     except TwythonError as te:
-        msg = f"{screen_name_to_export}: {te.msg}"
+        msg = resolve_twitter_error(te)
+        msg = f"{screen_name_to_export}: {msg}"
         return False, None, msg
 
     resolved_screen_name = u['screen_name']

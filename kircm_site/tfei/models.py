@@ -39,10 +39,14 @@ class Task(models.Model):
         return f"{self.id} - {self.tw_user} - {self.task_type} - {self.task_status} - updated-at: {self.updated_at}"
 
     @classmethod
+    def get_existing_not_finished_for_user(cls, u):
+        return cls.objects.filter(tw_user=u).exclude(task_status__exact=cls.TaskStatus.FINISHED)
+
+    @classmethod
     def create_from_tw_context(cls, task_type, tw, par_exp_screen_name=None, par_imp_file_name=None):
         u = TwUser.objects.get(pk=tw['user_id'])
 
-        existing_not_finished = cls.objects.filter(tw_user=u).exclude(task_status__exact=cls.TaskStatus.FINISHED)
+        existing_not_finished = cls.get_existing_not_finished_for_user(u)
         if existing_not_finished:
             # Stop creating new task for user - there is one pending or running
             raise cls.UserTaskExisting()

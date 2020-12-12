@@ -6,10 +6,13 @@ from pathlib import Path
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 
+from .forms import ExportScreenNameForm
 from .models import Task
 from .view_decorators import requires_auth
 from .view_decorators import requires_tw_context
@@ -19,10 +22,10 @@ from .view_helpers import create_task_for_user
 from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
 from .view_helpers import redirect_to_error_view
-from .view_helpers import resolve_file_name_for_import
 from .view_helpers import resolve_screen_name_for_export
 from .view_helpers import retrieve_task
 from .view_helpers import retrieve_tasks_for_user
+from .view_helpers import task_for_user_exists
 from .view_helpers import validate_user_file_path
 
 
@@ -38,35 +41,36 @@ class AuthOkView(TemplateView):
         return {}
 
 
-class ExportView(TemplateView):
-    template_name = "tfei/export.html"
-
+class ExportView(View):
     @requires_auth
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @requires_tw_context
-    def get_context_data(self, **kwargs):
-        return {}
-
-
-class ExportActionView(RedirectView):
-    redirect_url = None
+        u = TwContextGetter(request).get_tw_context()
+        user_id = u['user_id']
+        task_exists, msg_context = task_for_user_exists(user_id)
+        if task_exists:
+            return render(request, 'tfei/export.html', {'msg_context': msg_context})
+        else:
+            screen_name = u['user_screen_name']
+            form = ExportScreenNameForm(initial={'tw_user_to_export': screen_name})
+            return render(request, 'tfei/export.html', {'form': form})
 
     @requires_auth
     def post(self, request, *args, **kwargs):
-        ok, task_par_screen_name, err_msg_for_user = resolve_screen_name_for_export(request)
-        if ok:
-            self.redirect_url = create_task_for_user(request,
-                                                     Task.TaskType.EXPORT.name,
-                                                     "export_ok",
-                                                     par_exp_screen_name=task_par_screen_name)
-        else:
-            self.redirect_url = redirect_to_error_view(request, err_msg_for_user)
-        return super().post(request, *args, **kwargs)
+        form = ExportScreenNameForm(request.POST)
+        if form.is_valid():
+            screen_name_to_export = form.cleaned_data['tw_user_to_export']
+            ok, task_par_screen_name, err_msg_for_user = resolve_screen_name_for_export(screen_name_to_export)
+            if ok:
+                redirect_url = create_task_for_user(request,
+                                                    Task.TaskType.EXPORT.name,
+                                                    "export_ok",
+                                                    par_exp_screen_name=task_par_screen_name)
+            else:
+                redirect_url = redirect_to_error_view(request, err_msg_for_user)
 
-    def get_redirect_url(self, *args, **kwargs):
-        return self.redirect_url
+            return HttpResponseRedirect(redirect_url)
+        else:
+            return render(request, 'tfei/export.html', {'form': form})
 
 
 class ExportOkView(TemplateView):
@@ -87,25 +91,6 @@ class ImportView(TemplateView):
     @requires_tw_context
     def get_context_data(self, **kwargs):
         return {}
-
-
-class ImportActionView(RedirectView):
-    redirect_url = None
-
-    @requires_auth
-    def post(self, request, *args, **kwargs):
-        ok, task_par_f_name, err_msg_for_user = resolve_file_name_for_import(request)
-        if ok:
-            self.redirect_url = create_task_for_user(request,
-                                                     Task.TaskType.IMPORT.name,
-                                                     "import_ok",
-                                                     task_par_f_name=task_par_f_name)
-        else:
-            self.redirect_url = redirect_to_error_view(request, err_msg_for_user)
-        return super().post(self, *args, **kwargs)
-
-    def get_redirect_url(self, *args, **kwargs):
-        return self.redirect_url
 
 
 class ImportOkView(TemplateView):
