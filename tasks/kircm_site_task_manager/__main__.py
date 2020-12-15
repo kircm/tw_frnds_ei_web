@@ -65,7 +65,9 @@ class Main:
 
     def run(self):
         end = self.start + TIMEOUT
-        condition = self.start < end
+        # Make the condition True to not take into account the timeout setting
+        # We still want to have it easy to change to timeout-based
+        condition = self.start < end or True
 
         # Detect and handle incomplete tasks
         # It may happen if the process dies

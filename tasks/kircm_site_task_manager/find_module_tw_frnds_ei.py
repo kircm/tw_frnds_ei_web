@@ -11,7 +11,7 @@ def import_module_tw_frnds_ei():
         import tw_frnds_ei.config_app as config_app
 
     except ModuleNotFoundError as mnfe1:
-        logger.warning(f"Module not found: {mnfe1} - Finding through relative path in file system...")
+        logger.info(f"Module not found: {mnfe1} - Finding through relative path in file system...")
         import sys
         p = pathlib.Path(__file__).resolve().parents[3].joinpath('tw_frnds_ei')
         sys.path.insert(0, str(p.absolute()))
@@ -29,7 +29,7 @@ def import_module_tw_frnds_ei():
             import tw_frnds_ei.main_exporter as main_exporter
             # noinspection PyUnresolvedReferences
             import tw_frnds_ei.main_importer as main_importer
-            logger.info("Modules: of tw_frnds_ei application found and loaded")
+            logger.info("Modules of tw_frnds_ei application FOUND and loaded")
 
         except ModuleNotFoundError as mnfe2:
             logger.error(f"Module not found: {mnfe2} - Couldn't find it in path: {p.absolute()}")

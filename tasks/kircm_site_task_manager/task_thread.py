@@ -1,5 +1,4 @@
 import logging
-import random
 import threading
 import time
 
@@ -48,9 +47,6 @@ def pick_pending_set_running(task_id, **kwargs):
 
     pending_task = TfeiTask.get_by_id(db_sess, task_id)
     logger.info(f"Retrieved PENDING task: {task_id} - {pending_task}")
-
-    # purposedly delaying setting to RUNNING status for preliminary testing for now
-    time.sleep(random.randrange(10, 40))
 
     pending_task.set_status_to(db_sess, TaskStatus.RUNNING)
     logger.info(f"Set task to RUNNING status: {task_id} - {pending_task}")
