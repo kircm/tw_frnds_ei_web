@@ -110,10 +110,18 @@ def validate_uploaded_csv_file(csv_file_path_name):
     return True, None
 
 
+def resolve_path_for_upload(user_screen_name):
+    # path includes a subdirectory with the currently authenticated twitter user name, the 'owner' of the data
+    path = Path(IMP_DATA_DIR).joinpath(user_screen_name).resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def handle_upload_file(file_to_upload, tw_context):
     user_screen_name = tw_context['user_screen_name']
     dest_file_name = generate_csv_file_name(user_screen_name)
-    dest_file_path_name = Path(IMP_DATA_DIR).joinpath(user_screen_name).joinpath(dest_file_name)
+    dest_path = resolve_path_for_upload(user_screen_name)
+    dest_file_path_name = dest_path.joinpath(dest_file_name)
 
     if file_to_upload.content_type != "text/csv":
         return False, None, "The file is not a CSV file"
