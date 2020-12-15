@@ -98,7 +98,7 @@ def do_task(task, **kwargs):
         retrieve_running_set_finished_info(task_id, ok, file_name, msg, db_session_maker=db_session_maker)
 
     elif task.task_type == TaskType.IMPORT.name:
-        csv_file_name = task.task_par_f_name
+        csv_file_name = task.par_imp_file_name
         if not csv_file_name:
             raise RuntimeError(f"SystemError: Import task {task_id} doesn't have the file name to import configured!")
         ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
