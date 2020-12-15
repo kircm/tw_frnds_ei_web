@@ -3,10 +3,22 @@
     {% include "tfei/head.html" %}
     <body>
         <div class="container">
-            {% include "tfei/header.html" %}
-            {% block containercontent %}{% endblock %}
+            <div class="row">
+                <div class="col ctr">
+                  {% include "tfei/header.html" %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                  {% block containercontent %}{% endblock %}
+                </div>
+            </div>
             <hr>
-            {% include "tfei/footer.html" %}
+            <div class="row">
+                <div class="col ctr">
+                {% include "tfei/footer.html" %}
+                </div>
+            </div>
         </div>
     </body>
 </html>

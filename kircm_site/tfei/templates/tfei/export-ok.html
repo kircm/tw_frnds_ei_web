@@ -1,5 +1,10 @@
 {% extends "tfei/base-menu.html" %}
 {% block actioncontent %}
-            <p>Your export task has been submitted successfully</p>
-            <p>Follow its progess in 'My Tasks' - Download link will appear when finished</p>
+<p>Your export task has been submitted successfully</p>
+<p>
+    Follow its progess in <a href="{% url 'my_tasks' %}">My Tasks</a>
+</p>
+<p>
+    Download link will appear at the task result when finished
+</p>
 {% endblock actioncontent %}

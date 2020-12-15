@@ -1,5 +1,7 @@
 {% extends "tfei/base-menu.html" %}
 {% block actioncontent %}
-            <p>This is my Import OK page content</p>
-            <p>Some explanation here</p>
+<p>Your import task has been submitted successfully</p>
+<p>
+    Follow its progess in <a href="{% url 'my_tasks' %}">My Tasks</a>
+</p>
 {% endblock actioncontent %}

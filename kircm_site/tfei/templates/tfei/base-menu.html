@@ -2,18 +2,14 @@
 {% block containercontent %}
 <div class="container container-inner">
 	<div class="row v-margin-20">
-        <div class="col-2"></div>
-        <div class="col-8">
+        <div class="col ctr">
 			{% include "tfei/navigation.html" %}
         </div>
-        <div class="col-2"></div>
     </div>
     <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8 text-center v-margin-20">
+        <div class="col ctr v-margin-20">
             {% block actioncontent %}{% endblock actioncontent %}
         </div>
-        <div class="col-2"></div>
     </div>
 </div>
 {% endblock containercontent %}

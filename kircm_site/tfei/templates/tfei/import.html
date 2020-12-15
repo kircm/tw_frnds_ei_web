@@ -1,6 +1,19 @@
 {% extends "tfei/base-menu.html" %}
 {% block actioncontent %}
-            <p>
-                Import explanation, upload file, get email, duration expectations...
-            </p>
+
+{% if msg_context.error_message  %}
+  <p>
+      {{ msg_context.error_message }}
+  </p>
+{% else %}
+  <p>
+      Select the file to be imported:
+  </p>
+    <form enctype="multipart/form-data" action="{% url 'import' %}"  method="post" class="v-margin-30">
+      {% csrf_token %}
+      {{ form }}
+      <br><br>
+      <input type="submit" value="Start Import" class="btn btn-success button-ok">
+    </form>
+{% endif %}
 {% endblock actioncontent %}

@@ -6,13 +6,13 @@
       {{ msg_context.error_message }}
   </p>
 {% else %}
-  <p class="text-center">
+  <p>
       Enter <strong>screen name</strong> of the profile to export friends for.
   </p>
-  <p class="text-center v-margin-20">
+  <p class="v-margin-20">
     Or leave your screen name to export your friends.
   </p>
-  <form action="{% url 'export' %}" method="post" class="text-center v-margin-30">
+  <form action="{% url 'export' %}" method="post" class="v-margin-30">
     {% csrf_token %}
     {{ form }}
     <br><br>
