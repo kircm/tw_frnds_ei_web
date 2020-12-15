@@ -28,3 +28,12 @@ class ExportScreenNameForm(forms.Form):
         p = re.compile(r"^[a-zA-Z0-9_]*$")
         if not p.match(screen_name):
             raise ValidationError("Invalid screen name")
+
+
+class ImportFileForm(forms.Form):
+    file_to_import = forms.FileField(
+        required=True,
+        label='',
+        max_length=100,
+        widget=forms.FileInput(attrs={'class': 'input-file'})
+    )

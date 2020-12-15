@@ -13,12 +13,14 @@ from django.views.generic.base import TemplateView
 from django.views.generic.base import View
 
 from .forms import ExportScreenNameForm
+from .forms import ImportFileForm
 from .models import Task
 from .view_decorators import requires_auth
 from .view_decorators import requires_tw_context
 from .view_helpers import TwContextGetter
 from .view_helpers import authenticate_app
 from .view_helpers import create_task_for_user
+from .view_helpers import handle_upload_file
 from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
 from .view_helpers import redirect_to_error_view
@@ -69,8 +71,8 @@ class ExportView(View):
                                                     par_exp_screen_name=task_par_screen_name)
             else:
                 redirect_url = redirect_to_error_view(request, err_msg_for_user)
-
             return HttpResponseRedirect(redirect_url)
+
         else:
             return render(request, 'tfei/export.html', {'form': form})
 
@@ -83,16 +85,41 @@ class ExportOkView(TemplateView):
         return {}
 
 
-class ImportView(TemplateView):
+class ImportView(View):
     template_name = "tfei/import.html"
 
     @requires_auth
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        u = TwContextGetter(request).get_tw_context()
+        user_id = u['user_id']
+        task_exists, msg_context = task_for_user_exists(user_id)
+        if task_exists:
+            return render(request, 'tfei/import.html', {'msg_context': msg_context})
+        else:
+            form = ImportFileForm()
+            return render(request, "tfei/import.html", {'form': form})
 
-    @requires_tw_context
-    def get_context_data(self, **kwargs):
-        return {}
+    @requires_auth
+    def post(self, request, *args, **kwargs):
+        file_to_import = request.FILES.get('file_to_import')
+        if not file_to_import:
+            return HttpResponseRedirect(redirect_to_error_view(request, "file to upload is missing"))
+
+        tw_context = TwContextGetter(request).get_tw_context()
+        form = ImportFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            ok, path_file, err_msg_for_user = handle_upload_file(file_to_import, tw_context)
+            if ok:
+                redirect_url = create_task_for_user(request,
+                                                    Task.TaskType.IMPORT.name,
+                                                    "import_ok",
+                                                    par_imp_file_name=path_file)
+            else:
+                redirect_url = redirect_to_error_view(request, err_msg_for_user)
+            return HttpResponseRedirect(redirect_url)
+
+        else:
+            return render(request, "tfei/import.html", {'form': form})
 
 
 class ImportOkView(TemplateView):

@@ -1,4 +1,7 @@
+import csv
 import re
+import time
+from pathlib import Path
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
@@ -6,7 +9,9 @@ from django.urls import reverse
 from twython import Twython
 from twython import TwythonError
 
+from .config_app import IMP_DATA_DIR
 from .config_app import MAX_FRIENDS
+from .config_app import UPLOAD_MAX_SIZE
 from .config_auth import APP_KEY
 from .config_auth import APP_SECRET
 from .models import Task
@@ -79,9 +84,56 @@ def resolve_screen_name_for_export(tw_context, screen_name_to_export):
         return True, resolved_screen_name, None
 
 
-def resolve_file_name_for_import(request):
-    # TODO: Handle file uploaded by user
-    return True, "test_friends_ei_minimal.csv", None
+def generate_csv_file_name(user_screen_name):
+    curr_timestamp_ns = str(time.time_ns())
+    return f"friends_{user_screen_name}_{curr_timestamp_ns}.csv"
+
+
+def validate_uploaded_csv_file(csv_file_path_name):
+    friend_contents = []
+    try:
+        err_msg = "The data in the file is not valid CSV"
+        with open(csv_file_path_name, 'r', newline='') as csv_file:
+            reader = csv.reader(csv_file, delimiter=',', quotechar='"')
+            for row in reader:
+                fr_name = row[0]
+                fr_id = int(row[1])
+                friend_contents.append((fr_id, fr_name))
+    except ValueError:
+        return False, err_msg
+    except IndexError:
+        return False, err_msg
+
+    if len(friend_contents) > MAX_FRIENDS:
+        return False, f"We support up to {MAX_FRIENDS} friends. File contains {len(friend_contents)}"
+
+    return True, None
+
+
+def handle_upload_file(file_to_upload, tw_context):
+    user_screen_name = tw_context['user_screen_name']
+    dest_file_name = generate_csv_file_name(user_screen_name)
+    dest_file_path_name = Path(IMP_DATA_DIR).joinpath(user_screen_name).joinpath(dest_file_name)
+
+    if file_to_upload.content_type != "text/csv":
+        return False, None, "The file is not a CSV file"
+    if file_to_upload.size > UPLOAD_MAX_SIZE:
+        return False, None, f"The file is too big - we support a maximum of {MAX_FRIENDS} friends"
+
+    total_read_size = 0
+    with open(dest_file_path_name, 'wb+') as destination:
+        for chunk in file_to_upload.chunks():
+            total_read_size += len(chunk)
+            if total_read_size > UPLOAD_MAX_SIZE:
+                destination.close()
+                return False, None, f"The file is too big. We stopped reading at {total_read_size} bytes"
+            destination.write(chunk)
+
+    ok, error_message = validate_uploaded_csv_file(dest_file_path_name)
+    if ok:
+        return True, dest_file_path_name, None
+    else:
+        return False, None, error_message
 
 
 def create_task_for_user(request, task_type, ok_view, par_exp_screen_name=None, par_imp_file_name=None):
