@@ -1,3 +1,4 @@
+import json
 import logging
 import threading
 import time
@@ -98,7 +99,8 @@ def do_task(task, **kwargs):
         if not csv_file_name:
             raise RuntimeError(f"SystemError: Import task {task_id} doesn't have the file name to import configured!")
         ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
-        retrieve_running_set_finished_info(task_id, ok, friendships_remaining, msg, db_session_maker=db_session_maker)
+        frnds_remaining_json = json.dumps(friendships_remaining)
+        retrieve_running_set_finished_info(task_id, ok, frnds_remaining_json, msg, db_session_maker=db_session_maker)
 
     else:
         raise NotImplementedError(f"Task type: {task.task_type} doesn't have an implementation")
