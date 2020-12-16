@@ -18,6 +18,7 @@ from .models import Task
 from .view_decorators import requires_auth
 from .view_decorators import requires_tw_context
 from .view_helpers import TwContextGetter
+from .view_helpers import add_deserialized_output_and_details
 from .view_helpers import authenticate_app
 from .view_helpers import create_task_for_user
 from .view_helpers import handle_upload_file
@@ -25,7 +26,7 @@ from .view_helpers import logout_user
 from .view_helpers import process_tw_oauth_callback_request
 from .view_helpers import redirect_to_error_view
 from .view_helpers import resolve_screen_name_for_export
-from .view_helpers import retrieve_task
+from .view_helpers import retrieve_task_for_user
 from .view_helpers import retrieve_tasks_for_user
 from .view_helpers import task_for_user_exists
 from .view_helpers import validate_user_file_path
@@ -155,7 +156,7 @@ class DownloadView(View):
         user_screen_name = tw_context['user_screen_name']
         user_id = tw_context['user_id']
         task_id = kwargs['task_id']
-        task = retrieve_task(task_id, user_id)
+        task = retrieve_task_for_user(task_id, user_id)
 
         path_file = Path(task.finished_output)
         if exists(path_file) and isfile(path_file) \
@@ -166,6 +167,21 @@ class DownloadView(View):
                 return resp
         else:
             raise ObjectDoesNotExist()
+
+
+class TaskDetailsView(TemplateView):
+    template_name = "tfei/task-details.html"
+
+    @requires_tw_context
+    def get_context_data(self, **kwargs):
+        tw_context = TwContextGetter(self.request).get_tw_context()
+        user_id = tw_context['user_id']
+        task_id = kwargs['task_id']
+        task = retrieve_task_for_user(task_id, user_id)
+        context_data = {'task_context': task}
+        if task.task_type == Task.TaskType.IMPORT.name:
+            add_deserialized_output_and_details(task, context_data)
+        return context_data
 
 
 class LogoutView(TemplateView):

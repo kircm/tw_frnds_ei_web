@@ -19,6 +19,11 @@
   text-align: center;
 }
 
+.lft {
+  margin: 0 auto;
+  text-align: left;
+}
+
 .container {
   padding: 15px;
   width: 80%;

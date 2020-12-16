@@ -1,6 +1,8 @@
 import csv
+import json
 import re
 import time
+from json import JSONDecodeError
 from pathlib import Path
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -91,8 +93,8 @@ def generate_csv_file_name(user_screen_name):
 
 def validate_uploaded_csv_file(csv_file_path_name):
     friend_contents = []
+    err_msg = "The data in the file is not valid CSV"
     try:
-        err_msg = "The data in the file is not valid CSV"
         with open(csv_file_path_name, 'r', newline='') as csv_file:
             reader = csv.reader(csv_file, delimiter=',', quotechar='"')
             for row in reader:
@@ -144,6 +146,23 @@ def handle_upload_file(file_to_upload, tw_context):
         return False, None, error_message
 
 
+def add_deserialized_output_and_details(task, context_data):
+    if task.finished_output:
+        try:
+            import_output = json.loads(task.finished_output)
+            context_data.update({'task_output_deser_context': import_output})
+        except JSONDecodeError:
+            pass
+
+    if task.finished_details:
+        try:
+            import_details = json.loads(task.finished_details)
+            if not isinstance(import_details, str):
+                context_data.update({'task_details_deser_context': import_details})
+        except JSONDecodeError:
+            pass
+
+
 def create_task_for_user(request, task_type, ok_view, par_exp_screen_name=None, par_imp_file_name=None):
     tw_context = TwContextGetter(request).get_tw_context()
     try:
@@ -160,15 +179,16 @@ def retrieve_tasks_for_user(request):
     return tasks_for_user
 
 
-def retrieve_task(task_id, user_id):
+def retrieve_task_for_user(task_id, user_id):
+    msg = "Task does not exist!"
     try:
         task = Task.objects.get(pk=task_id)
     except ObjectDoesNotExist:
-        raise Http404("Task does not exist!")
+        raise Http404(msg)
 
     # Important - check that the task belongs to current user
     if task.tw_user.tw_id != user_id:
-        raise Http404("Task does not exist!")
+        raise Http404(msg)
 
     return task
 

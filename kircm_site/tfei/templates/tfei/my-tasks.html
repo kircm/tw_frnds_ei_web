@@ -71,12 +71,12 @@
                   <a href="{% url 'download' task.id %}">Download</a>
                 {% endif %}
                 {% if task.task_type == "IMPORT" %}
-                  NOT IMPL
+                  <a href="{% url 'task_details' task.id %}">Details</a>
                 {% endif %}
               {% elif task.finished_ok == None %}
                 Not Yet
               {% else %}
-                LINK TO DETAILS
+                <a href="{% url 'task_details' task.id %}">Details</a>
               {% endif %}
           </td>
         </tr>

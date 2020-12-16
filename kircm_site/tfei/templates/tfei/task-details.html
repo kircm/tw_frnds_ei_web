@@ -1,0 +1,90 @@
+{% extends "tfei/base-menu.html" %}
+{% block actioncontent %}
+
+<p class="text-secondary">
+    {% if task_context.task_type == 'IMPORT' %}
+      Output and details for
+    {% endif %}
+    {% if task_context.task_type == 'EXPORT' %}
+      Details for
+    {% endif %}
+
+    {{ task_context.tw_screen_name_for_task }}'s {{ task_context.task_type|title }} task {{ task_context.id }}
+</p>
+
+<hr/>
+
+<p>
+    Finished OK:
+    {% if task_context.finished_ok %}
+      <font color="green" style="bold">Yes</font>
+    {% else %}
+      <font color="red" style="bold">No</font>
+    {% endif %}
+</p>
+
+{% if task_context.task_type == 'IMPORT' %}
+    <p class="v-margin-30"></p>
+    {% if task_output_deser_context %}
+        <table class="table-sm small lft">
+          <thead>
+          Output - Friendships not imported:
+          </thead>
+          <tbody>
+            {% for output in task_output_deser_context %}
+              <tr>
+                <th scope="row">{{ output.screen_name }}</th>
+                <td>{{ output.reason_for_skipping }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    {% elif task_context.finished_output %}
+        Output: <br/>
+        {{ task_context.finished_output }}
+    {% else %}
+        Output: Import task generated no output.
+    {% endif %}
+
+    {% if task_context.finished_details %}
+        <p class="v-margin-30">
+            {% if task_details_deser_context %}
+                <table class="table-sm small ctr">
+                  <thead>
+                  Details - Friendships imported:
+                  </thead>
+                  <tbody>
+                      <tr>
+                        <td>
+                            {% for detail in task_details_deser_context %}
+                              {{ detail }}&nbsp;&nbsp;&nbsp;
+                            {% endfor %}
+                        </td>
+                      </tr>
+                  </tbody>
+                </table>
+            {% else %}
+                Details: <br/>
+                {{ task_context.finished_details }}
+            {% endif %}
+        </p>
+    {% else %}
+        <p class="v-margin-30">
+            Details: Import task generated no further details.
+        </p>
+    {% endif %}
+{% endif %}
+
+
+{% if task_context.task_type == 'EXPORT' %}
+<p class="v-margin-30">
+    Details: <br/>
+    {% if task_context.finished_details %}
+        {{ task_context.finished_details }}
+    {% else %}
+        Export task generated no further details.
+    {% endif %}
+</p>
+{% endif %}
+
+{% endblock actioncontent %}
