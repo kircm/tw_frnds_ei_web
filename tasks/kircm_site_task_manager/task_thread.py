@@ -98,9 +98,18 @@ def do_task(task, **kwargs):
         csv_file_name = task.par_imp_file_name
         if not csv_file_name:
             raise RuntimeError(f"SystemError: Import task {task_id} doesn't have the file name to import configured!")
-        ok, msg, friendships_remaining = importer_task(user_token, user_token_secret, csv_file_name)
-        frnds_remaining_json = json.dumps(friendships_remaining)
-        retrieve_running_set_finished_info(task_id, ok, frnds_remaining_json, msg, db_session_maker=db_session_maker)
+        ok, msg, frnds_imported, frnds_remaining = importer_task(user_token, user_token_secret, csv_file_name)
+        frnds_remaining_json = json.dumps(frnds_remaining)
+        if ok:
+            finished_details = json.dumps(frnds_imported)
+        else:
+            finished_details = msg
+
+        retrieve_running_set_finished_info(task_id,
+                                           ok,
+                                           frnds_remaining_json,
+                                           finished_details,
+                                           db_session_maker=db_session_maker)
 
     else:
         raise NotImplementedError(f"Task type: {task.task_type} doesn't have an implementation")
