@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Channels
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -82,7 +85,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'kircm_site.wsgi.application'
+# MK: moved to asgi application to make use of channels
+# WSGI_APPLICATION = 'kircm_site.wsgi.application'
+
+# MK: added asgi application setting
+ASGI_APPLICATION = 'kircm_site.asgi.application'
 
 
 # Database
