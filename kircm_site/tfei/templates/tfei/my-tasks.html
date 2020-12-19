@@ -25,7 +25,6 @@
           <th scope="col">Finished OK?</th>
           <th scope="col">Created at</th>
           <th scope="col">Finished at</th>
-          <th scope="col">Logs</th>
           <th scope="col">Result</th>
         </tr>
       </thead>
@@ -62,9 +61,6 @@
                   <br/>
                 {{ task.finished_at | localtime | time:"H:i e" }}
               {% endif %}
-          </td>
-          <td>
-              <a href="#">logs</a>
           </td>
           <td>{% if task.finished_ok %}
                 {% if task.task_type == "EXPORT" %}
