@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Channels
+    # Channels for future potential ASGI support
     'channels',
 ]
 
@@ -85,12 +85,14 @@ TEMPLATES = [
     },
 ]
 
-# MK: moved to asgi application to make use of channels
-# WSGI_APPLICATION = 'kircm_site.wsgi.application'
+# MK: In PROD application is run as WSGI
+# ASGI not supported by pythonanywhere.com
+WSGI_APPLICATION = 'kircm_site.wsgi.application'
+# -MK-
 
 # MK: added asgi application setting
 ASGI_APPLICATION = 'kircm_site.asgi.application'
-
+# -MK-
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
